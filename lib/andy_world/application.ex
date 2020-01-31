@@ -9,7 +9,8 @@ defmodule AndyWorld.Application do
     # List all child processes to be supervised
     children = [
       # Start the endpoint when the application starts
-      AndyWorldWeb.Endpoint
+      AndyWorldWeb.Endpoint,
+      AndyWorld.Space
       # Starts a worker by calling: AndyWorld.Worker.start_link(arg)
       # {AndyWorld.Worker, arg},
     ]

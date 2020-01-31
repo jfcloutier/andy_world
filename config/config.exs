@@ -7,12 +7,23 @@
 # General application configuration
 use Mix.Config
 
+config :andy_world,
+  default_ambient: 10,
+  default_color: 7,
+  max_events_remembered: 500,
+  tiles_per_rotation: 0.5,
+  degrees_per_rotation: 45,
+  tile_per_rotation: 0.5
+
 # Configures the endpoint
 config :andy_world, AndyWorldWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "CRVSo1ld+c+h6bTDVOXMERlRxYKR7+H56IWjXGz1wHYAXw1wwwmBFJAr549i17ya",
   render_errors: [view: AndyWorldWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: AndyWorld.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: AndyWorld.PubSub, adapter: Phoenix.PubSub.PG2],
+  live_view: [
+    signing_salt: "SECRET_SALT"
+  ]
 
 # Configures Elixir's Logger
 config :logger, :console,

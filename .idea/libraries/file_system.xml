@@ -2,6 +2,7 @@
   <library name="file_system" type="mix">
     <CLASSES>
       <root url="file://$PROJECT_DIR$/_build/smartrent_hub_dev/lib/file_system/ebin" />
+      <root url="file://$PROJECT_DIR$/_build/dev/lib/file_system/ebin" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

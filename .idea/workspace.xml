@@ -1,7 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="863699a7-af3d-4899-84be-36961996e3a6" name="Default Changelist" comment="" />
+    <list default="true" id="863699a7-af3d-4899-84be-36961996e3a6" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/lib/andy_world/motor.ex" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/andy_world/robot.ex" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/andy_world/space.ex" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/andy_world/tile.ex" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/andy_world_web/live/andy_world/dashboard.ex" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/playground.ex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/cowboy.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/cowboy.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/cowlib.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/cowlib.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/file_system.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/file_system.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/gettext.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/gettext.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/jason.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/jason.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/mime.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/mime.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/phoenix.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/phoenix.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/phoenix_html.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/phoenix_html.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/phoenix_live_reload.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/phoenix_live_reload.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/phoenix_pubsub.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/phoenix_pubsub.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/plug.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/plug.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/plug_cowboy.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/plug_cowboy.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/plug_crypto.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/plug_crypto.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/ranch.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/ranch.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/telemetry.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/telemetry.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/andy_world.iml" beforeDir="false" afterPath="$PROJECT_DIR$/andy_world.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/app.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/app.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/js/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/assets/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/assets/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config.exs" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.exs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/andy_world.ex" beforeDir="false" afterPath="$PROJECT_DIR$/lib/andy_world.ex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/andy_world/application.ex" beforeDir="false" afterPath="$PROJECT_DIR$/lib/andy_world/application.ex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/andy_world_web.ex" beforeDir="false" afterPath="$PROJECT_DIR$/lib/andy_world_web.ex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/andy_world_web/endpoint.ex" beforeDir="false" afterPath="$PROJECT_DIR$/lib/andy_world_web/endpoint.ex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/andy_world_web/router.ex" beforeDir="false" afterPath="$PROJECT_DIR$/lib/andy_world_web/router.ex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/andy_world_web/templates/layout/app.html.eex" beforeDir="false" afterPath="$PROJECT_DIR$/lib/andy_world_web/templates/layout/app.html.eex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mix.exs" beforeDir="false" afterPath="$PROJECT_DIR$/mix.exs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mix.lock" beforeDir="false" afterPath="$PROJECT_DIR$/mix.lock" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -10,19 +47,58 @@
   <component name="CompilerWorkspaceConfiguration">
     <option name="CLEAR_OUTPUT_DIRECTORY" value="false" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Elixir Module" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="1WfMAp5VqsoWy4WRJjHiXnF97eN" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="project.structure.last.edited" value="Project" />
-    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.last.edited" value="Artifacts" />
+    <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/andy_world" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Elixir Mix.Compile">
+    <configuration name="Compile" type="MixRunConfigurationType" factoryName="Elixir Mix">
+      <module name="andy_world" />
+      <mix>
+        <argument>compile</argument>
+      </mix>
+      <module name="andy_world" />
+      <module-filters inherit-application-module-filters="true" />
+      <method v="2" />
+    </configuration>
+    <configuration name="DepsGet" type="MixRunConfigurationType" factoryName="Elixir Mix">
+      <module name="andy_world" />
+      <mix>
+        <argument>deps.get</argument>
+      </mix>
+      <module name="andy_world" />
+      <module-filters inherit-application-module-filters="true" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Elixir Mix.DepsGet" />
+      <item itemvalue="Elixir Mix.Compile" />
+    </list>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -35,9 +111,37 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
+    <state x="418" y="258" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1579538926434">
+      <screen x="0" y="0" width="1920" height="1200" />
+    </state>
+    <state x="418" y="258" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.1200.1600.900/0.0.1920.1200@0.0.1920.1200" timestamp="1579538926434" />
     <state x="738" y="342" width="434" height="522" key="FileChooserDialogImpl" timestamp="1579536383183">
       <screen x="0" y="0" width="1920" height="1200" />
     </state>
     <state x="738" y="342" width="434" height="522" key="FileChooserDialogImpl/0.1200.1600.900/0.0.1920.1200@0.0.1920.1200" timestamp="1579536383183" />
+    <state width="1920" height="331" key="GridCell.Tab.0.bottom" timestamp="1580510342529">
+      <screen x="0" y="0" width="1920" height="1200" />
+    </state>
+    <state width="1920" height="331" key="GridCell.Tab.0.bottom/0.1200.1600.900/0.0.1920.1200@0.0.1920.1200" timestamp="1580510342529" />
+    <state width="1920" height="331" key="GridCell.Tab.0.center" timestamp="1580510342529">
+      <screen x="0" y="0" width="1920" height="1200" />
+    </state>
+    <state width="1920" height="331" key="GridCell.Tab.0.center/0.1200.1600.900/0.0.1920.1200@0.0.1920.1200" timestamp="1580510342529" />
+    <state width="1920" height="331" key="GridCell.Tab.0.left" timestamp="1580510342529">
+      <screen x="0" y="0" width="1920" height="1200" />
+    </state>
+    <state width="1920" height="331" key="GridCell.Tab.0.left/0.1200.1600.900/0.0.1920.1200@0.0.1920.1200" timestamp="1580510342529" />
+    <state width="1920" height="331" key="GridCell.Tab.0.right" timestamp="1580510342529">
+      <screen x="0" y="0" width="1920" height="1200" />
+    </state>
+    <state width="1920" height="331" key="GridCell.Tab.0.right/0.1200.1600.900/0.0.1920.1200@0.0.1920.1200" timestamp="1580510342529" />
+    <state x="443" y="177" width="1024" height="852" key="SettingsEditor" timestamp="1579540750466">
+      <screen x="0" y="0" width="1920" height="1200" />
+    </state>
+    <state x="443" y="177" width="1024" height="852" key="SettingsEditor/0.1200.1600.900/0.0.1920.1200@0.0.1920.1200" timestamp="1579540750466" />
+    <state x="612" y="317" width="1098" height="727" key="find.popup" timestamp="1579537689541">
+      <screen x="0" y="0" width="1920" height="1200" />
+    </state>
+    <state x="612" y="317" width="1098" height="727" key="find.popup/0.1200.1600.900/0.0.1920.1200@0.0.1920.1200" timestamp="1579537689541" />
   </component>
 </project>

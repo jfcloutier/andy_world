@@ -23,6 +23,7 @@ defmodule AndyWorldWeb do
 
       import Plug.Conn
       import AndyWorldWeb.Gettext
+      import Phoenix.LiveView.Controller
       alias AndyWorldWeb.Router.Helpers, as: Routes
     end
   end
@@ -41,6 +42,7 @@ defmodule AndyWorldWeb do
 
       import AndyWorldWeb.ErrorHelpers
       import AndyWorldWeb.Gettext
+      import Phoenix.LiveView.Helpers
       alias AndyWorldWeb.Router.Helpers, as: Routes
     end
   end
@@ -50,6 +52,7 @@ defmodule AndyWorldWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
+      import Phoenix.LiveView.Router
     end
   end
 
