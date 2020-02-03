@@ -29,16 +29,17 @@ defmodule AndyWorld.Space do
   end
 
   def init(_) do
-    {:ok, initial_state()}
+    {:ok, %State{tiles: init_tiles()}}
   end
 
   #
   def handle_call(
-        {:add_robot, name, node, row, column, orientation, motors: motors},
+        {:place_robot, name, node, row, column, orientation, sensors_data, motors_data},
         _from,
         %State{robots: robots} = state
       ) do
-    case validate_and_register(state,
+    case validate_and_register(
+           state,
            name: name,
            node: node,
            row: row,
@@ -49,8 +50,10 @@ defmodule AndyWorld.Space do
         robot =
           Robot.new(
             name: name,
+            node: node,
             orientation: orientation,
-            motors: motors,
+            sensors_data: sensors_data,
+            motors: motors_data,
             row: row,
             column: column
           )
@@ -90,12 +93,12 @@ defmodule AndyWorld.Space do
   end
 
   def handle_call(
-        {:read, robot_name, sensor, sense},
+        {:read, robot_name, sensor_type, sense},
         _from,
         %State{robots: robots, tiles: tiles} = state
       ) do
     robot = Map.fetch!(robots, robot_name)
-    value = Robot.sense(robot, sensor, sense, tiles)
+    value = Robot.sense(robot, sensor_type, sense, tiles, other_robots(robot, robots))
     {:reply, {:ok, value}, state}
   end
 
@@ -105,20 +108,69 @@ defmodule AndyWorld.Space do
     {:noreply, %State{state | robots: Map.put(robots, robot_name, updated_robot)}}
   end
 
-  def occupied?(row, column, tiles, robots) do
-    tile = get_tile(tiles, row, column)
-    Tile.occupied?(tile) or Enum.any?(robots, &Robot.occupies?(&1, row, column))
+  def occupied?(%Tile{} = tile, row, column, robots) do
+    Tile.has_obstacle?(tile) or Enum.any?(robots, &Robot.occupies?(&1, row, column))
   end
 
+  def occupied?(row, column, tiles, robots) do
+    case get_tile(tiles, row, column) do
+      {:ok, tile} ->
+        occupied?(tile, row, column, robots)
+
+      # Any tile "off the playground" is implicitly occupied
+      {:error, _reason} ->
+        true
+    end
+  end
+
+  def get_tile(tiles, {row, column}), do: get_tile(tiles, row, column)
+
   def get_tile(tiles, row, column) do
-    tiles |> Enum.at(row) |> Enum.at(column)
+    if on_playground?(row, column, tiles) do
+      tile = tiles |> Enum.at(row) |> Enum.at(column)
+      {:ok, tile}
+    else
+      {:error, :invalid}
+    end
+  end
+
+  def other_robots(robot, robots) do
+    Enum.reject(robots, &(&1.name == robot.name))
+  end
+
+  def normalize_orientation(angle) do
+    orientation = rem(angle, 360)
+
+    cond do
+      orientation <= -180 ->
+        orientation + 360
+
+      orientation > 180 ->
+        orientation - 360
+
+      true ->
+        orientation
+    end
+  end
+
+  @spec tile_adjoining_at_angle(integer, {non_neg_integer, non_neg_integer}, [%Tile{}]) ::
+          {:ok, %Tile{}, non_neg_integer, non_neg_integer} | {:error, atom}
+  def tile_adjoining_at_angle(angle, {row, column}, tiles) do
+    {row, column} =
+      cond do
+        angle in -45..45 -> {row - 1, column}
+        angle in 45..135 -> {row, column + 1}
+        angle in 135..180 or angle in -180..-135 -> {row - 1, column}
+        angle in -45..-135 -> {row, column - 1}
+      end
+
+    case get_tile(tiles, {row, column}) do
+      {:ok, tile} -> {:ok, tile, row, column}
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   # Private
-
-  defp initial_state() do
-    %State{tiles: init_tiles()}
-  end
 
   # Index = tile's cartesian coordinate
   defp init_tiles() do
@@ -177,5 +229,9 @@ defmodule AndyWorld.Space do
 
   defp column_range([row | _] = _tiles) do
     0..(Enum.count(row) - 1)
+  end
+
+  defp on_playground?(row, column, tiles) do
+    row in row_range(tiles) and column in column_range(tiles)
   end
 end

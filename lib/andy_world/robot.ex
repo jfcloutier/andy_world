@@ -2,7 +2,11 @@ defmodule AndyWorld.Robot do
   @moduledoc "What is known about a robot"
 
   alias __MODULE__
-  alias AndyWorld.{Motor, Space}
+  alias AndyWorld.Space
+  alias AndyWorld.Actuating.Motor
+  alias AndyWorld.Sensing.Sensor
+
+  require Logger
 
   # simulate motion at at most 0.1 sec deltas
   @largest_tick_duration 0.1
@@ -13,6 +17,7 @@ defmodule AndyWorld.Robot do
             orientation: 0,
             x: 0.0,
             y: 0.0,
+            sensors: [],
             motors: %{},
             events: []
 
@@ -20,16 +25,19 @@ defmodule AndyWorld.Robot do
         name: name,
         node: node,
         orientation: orientation,
+        sensors: sensors_data,
         motors: motors_data,
         row: row,
         column: column
       ) do
+    sensors = Enum.map(sensors_data, &Sensor.from(&1))
     motors = Enum.map(motors_data, &{&1.port, Motor.from(&1)}) |> Enum.into(%{})
 
     %Robot{
       name: name,
       node: node,
       orientation: orientation,
+      sensors: sensors,
       motors: motors,
       x: row * 1.0,
       y: column * 1.0
@@ -51,24 +59,43 @@ defmodule AndyWorld.Robot do
   end
 
   def actuate(
-        %Robot{name: name, motors: motors} = robot,
+        %Robot{motors: motors} = robot,
         %{kind: :locomotion} = _intent,
         tiles,
         robots
       ) do
-    updated_robot = run_motors(robot, tiles, Enum.reject(robots, &(&1.name == name)))
-    reset_motors = Enum.map(motors, &(Motor.reset_controls(&1)))
+    updated_robot = run_motors(robot, tiles, Space.other_robots(robot, robots))
+    reset_motors = Enum.map(motors, &Motor.reset_controls(&1))
     %Robot{updated_robot | motors: reset_motors}
   end
 
-  def actuate(robot, _intent, tiles, _row, _column) do
-    # Do nothing
-    {robot, tiles}
+  def actuate(robot, _intent, _tiles, _robots) do
+    # Do nothing for now
+    robot
   end
 
-  def sense(_robot, _sensor, _sense, _tiles) do # and other robot end
-    # TODO
-    nil
+  def find_sensor(%Robot{sensors: sensors}, type) do
+    Enum.find(sensors, &(Sensor.has_type?(&1, type)))
+  end
+
+  def sense(robot, sensor_type, sense, tiles, other_robots) do
+    case find_sensor(robot, sensor_type) do
+      nil ->
+        Logger.warn("Robot #{robot.name} has no sensor of type #{inspect(sensor_type)}")
+        nil
+
+      sensor ->
+        {:ok, tile} = Space.get_tile(tiles, locate(robot))
+
+        apply(Sensor.module_for(sensor_type), :sense, [
+          robot,
+          sensor,
+          sense,
+          tile,
+          tiles,
+          other_robots
+        ])
+    end
   end
 
   def record_event(%Robot{events: events} = robot, event) do
@@ -84,9 +111,9 @@ defmodule AndyWorld.Robot do
        ) do
     durations = Enum.map(motors, &Motor.run_duration(&1))
     tick_duration = durations |> Enum.min() |> min(@largest_tick_duration)
-    ticks = Enum.max(durations) / tick_duration
-    degrees_per_rotation = Application.get_env(:andy_world, :degrees_per_rotation)
-    tiles_per_rotation = Application.get_env(:andy_world, :tiles_per_rotation)
+    ticks = ceil(Enum.max(durations) / tick_duration)
+    degrees_per_rotation = Application.get_env(:andy_world, :degrees_per_motor_rotation)
+    tiles_per_rotation = Application.get_env(:andy_world, :tiles_per_motor_rotation)
 
     position =
       Enum.reduce(
@@ -124,23 +151,28 @@ defmodule AndyWorld.Robot do
          tiles,
          other_robots
        ) do
+    # negative if backward-moving rotations
+    left_forward_rotations =
+      Enum.map(left_motors, &(Motor.rotations_per_sec(&1) * tick_duration)) |> max()
+
+    right_forward_rotations =
+      Enum.map(right_motors, &(Motor.rotations_per_sec(&1) * tick_duration)) |> max()
+
     angle =
-      delta_orientation(
+      new_orientation(
         orientation,
-        left_motors,
-        right_motors,
-        tick_duration,
+        left_forward_rotations,
+        right_forward_rotations,
         degrees_per_rotation
       )
 
     {new_x, new_y} =
-      delta_position(
+      new_position(
         x,
         y,
         angle,
-        left_motors,
-        right_motors,
-        tick_duration,
+        left_forward_rotations,
+        right_forward_rotations,
         tiles_per_rotation,
         tiles,
         other_robots
@@ -149,23 +181,27 @@ defmodule AndyWorld.Robot do
     %{orientation: angle, x: new_x, y: new_y}
   end
 
-  defp delta_position(
+  defp new_orientation(
+         orientation,
+         left_forward_rotations,
+         right_forward_rotations,
+         degrees_per_rotation
+       ) do
+    effective_rotations = left_forward_rotations - right_forward_rotations
+    delta_orientation = (effective_rotations * degrees_per_rotation) |> floor()
+    Space.normalize_orientation(orientation + delta_orientation)
+  end
+
+  defp new_position(
          x,
          y,
          angle,
-         left_motors,
-         right_motors,
-         tick_duration,
+         left_forward_rotations,
+         right_forward_rotations,
          tiles_per_rotation,
          tiles,
          other_robots
        ) do
-    left_forward_rotations =
-      Enum.map(left_motors, &(Motor.rotations_per_sec(&1) * tick_duration)) |> max()
-
-    right_forward_rotations =
-      Enum.map(right_motors, &(Motor.rotations_per_sec(&1) * tick_duration)) |> max()
-
     rotations = (left_forward_rotations + right_forward_rotations) |> div(2)
     distance = rotations * tiles_per_rotation
     delta_x = :math.cos(angle) * distance
@@ -177,36 +213,6 @@ defmodule AndyWorld.Robot do
       {x, y}
     else
       {new_x, new_y}
-    end
-  end
-
-  defp delta_orientation(
-         orientation,
-         left_motors,
-         right_motors,
-         tick_duration,
-         degrees_per_rotation
-       ) do
-    # negative if backward-moving rotations
-    left_forward_rotations =
-      Enum.map(left_motors, &(Motor.rotations_per_sec(&1) * tick_duration)) |> max()
-
-    right_forward_rotations =
-      Enum.map(right_motors, &(Motor.rotations_per_sec(&1) * tick_duration)) |> max()
-
-    rotations = left_forward_rotations - right_forward_rotations
-    degrees_turned = (rotations * degrees_per_rotation) |> floor()
-    new_orientation = (orientation + degrees_turned) |> rem(360)
-
-    cond do
-      new_orientation <= 180 ->
-        180 - rem(new_orientation, 180)
-
-      new_orientation > 180 ->
-        rem(new_orientation, 180) - 180
-
-      true ->
-        new_orientation
     end
   end
 

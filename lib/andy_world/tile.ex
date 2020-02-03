@@ -3,6 +3,7 @@ defmodule AndyWorld.Tile do
   A tile
   """
   alias __MODULE__
+  require Logger
 
   defstruct obstacle_height: 0,
             beacon_orientation: nil,
@@ -23,8 +24,15 @@ defmodule AndyWorld.Tile do
     }
   end
 
-  def occupied?(tile) do
+  def has_obstacle?(tile) do
     tile.obstacle_height > 0 or tile.beacon_orientation != nil
+  end
+
+  def ground_color(%Tile{ground_color: ground_color}), do: ground_color
+  def ambient_light(%Tile{ground_color: ambient_light}), do: ambient_light
+  def reflected_light(_tile) do
+    Logger.warn("Tile reflected light not implemented yet")
+    0
   end
 
   defp convert_height("_"), do: 0

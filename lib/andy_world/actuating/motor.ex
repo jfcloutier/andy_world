@@ -1,4 +1,4 @@
-defmodule AndyWorld.Motor do
+defmodule AndyWorld.Actuating.Motor do
   @moduledoc "A robot's motor."
 
   alias __MODULE__
