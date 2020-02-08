@@ -43,7 +43,13 @@ defmodule AndyWorld.Sensing.Sensor do
   def has_type?(%Sensor{type: type}, sensor_type), do: type == sensor_type
 
   def absolute_orientation(:front, robot_orientation), do: robot_orientation
-  def absolute_orientation(:back, robot_orientation), do: Space.normalize_orientation(robot_orientation + 180)
-  def absolute_orientation(:left, robot_orientation), do: Space.normalize_orientation(robot_orientation - 90)
-  def absolute_orientation(:right, robot_orientation), do: Space.normalize_orientation(robot_orientation + 90)
+
+  def absolute_orientation(:back, robot_orientation),
+    do: Space.normalize_orientation(robot_orientation + 180)
+
+  def absolute_orientation(:left, robot_orientation),
+    do: Space.normalize_orientation(robot_orientation - 90)
+
+  def absolute_orientation(:right, robot_orientation),
+    do: Space.normalize_orientation(robot_orientation + 90)
 end

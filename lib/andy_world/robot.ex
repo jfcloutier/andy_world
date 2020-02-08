@@ -75,7 +75,7 @@ defmodule AndyWorld.Robot do
   end
 
   def find_sensor(%Robot{sensors: sensors}, type) do
-    Enum.find(sensors, &(Sensor.has_type?(&1, type)))
+    Enum.find(sensors, &Sensor.has_type?(&1, type))
   end
 
   def sense(robot, sensor_type, sense, tiles, other_robots) do

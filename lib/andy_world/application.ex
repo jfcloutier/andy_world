@@ -10,9 +10,7 @@ defmodule AndyWorld.Application do
     children = [
       # Start the endpoint when the application starts
       AndyWorldWeb.Endpoint,
-      AndyWorld.Space
-      # Starts a worker by calling: AndyWorld.Worker.start_link(arg)
-      # {AndyWorld.Worker, arg},
+      AndyWorld.Playground
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

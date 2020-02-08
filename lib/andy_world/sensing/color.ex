@@ -10,11 +10,10 @@ defmodule AndyWorld.Sensing.Color do
   end
 
   def sensed(_robot, _sensor, :ambient, tile, _tiles, _other_robots) do
-     Tile.ambient_light(tile)
+    Tile.ambient_light(tile)
   end
 
   def sensed(_robot, _sensor, :reflected, tile, _tiles, _other_robots) do
     Tile.reflected_light(tile)
   end
-
 end

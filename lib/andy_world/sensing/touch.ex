@@ -12,7 +12,7 @@ defmodule AndyWorld.Sensing.Touch do
       {:ok, _tile, row, column} ->
         if Space.occupied?(row, column, tiles, other_robots), do: :pressed, else: :released
 
-        # tile is off the playground
+      # tile is off the playground
       {:error, _reason} ->
         :pressed
     end
