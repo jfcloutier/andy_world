@@ -61,13 +61,12 @@ defmodule AndyWorld.Playground do
           :ok,
           %State{
             state
-          |
-            robots:
-              Map.put(
-                robots,
-                name,
-                robot
-              )
+            | robots:
+                Map.put(
+                  robots,
+                  name,
+                  robot
+                )
           }
         }
 

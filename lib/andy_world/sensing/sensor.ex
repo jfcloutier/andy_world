@@ -11,7 +11,7 @@ defmodule AndyWorld.Sensing.Sensor do
             position: nil,
             # how high is the sensor riding on the robot
             height_cm: nil,
-            # which way is the sensor pointing, # one of :left, :right, :top, :front, :back
+            # which way is the sensor pointing, # an angle between -180 and 180
             aim: nil
 
   def module_for(sensor_type) do
@@ -42,14 +42,8 @@ defmodule AndyWorld.Sensing.Sensor do
 
   def has_type?(%Sensor{type: type}, sensor_type), do: type == sensor_type
 
-  def absolute_orientation(:front, robot_orientation), do: robot_orientation
-
-  def absolute_orientation(:back, robot_orientation),
-    do: Space.normalize_orientation(robot_orientation + 180)
-
-  def absolute_orientation(:left, robot_orientation),
-    do: Space.normalize_orientation(robot_orientation - 90)
-
-  def absolute_orientation(:right, robot_orientation),
-    do: Space.normalize_orientation(robot_orientation + 90)
+  def absolute_orientation(sensor_aim, robot_orientation) do
+    (robot_orientation + sensor_aim)
+    |> Space.normalize_orientation()
+  end
 end

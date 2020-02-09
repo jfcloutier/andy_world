@@ -204,12 +204,13 @@ defmodule AndyWorld.Robot do
        ) do
     rotations = (left_forward_rotations + right_forward_rotations) |> div(2)
     distance = rotations * tiles_per_rotation
-    delta_x = :math.cos(angle) * distance
-    delta_y = :math.sin(angle) * distance
+    delta_x = :math.cos(Space.d2r(angle)) * distance
+    delta_y = :math.sin(Space.d2r(angle)) * distance
     new_x = x + delta_x
     new_y = y + delta_y
+    {:ok, tile} = Space.get_tile(tiles, floor(new_x), floor(new_y))
 
-    if Space.occupied?(floor(new_x), floor(new_y), tiles, other_robots) do
+    if Space.occupied?(tile, other_robots) do
       {x, y}
     else
       {new_x, new_y}

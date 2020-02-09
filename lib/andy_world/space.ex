@@ -6,14 +6,14 @@ defmodule AndyWorld.Space do
   alias AndyWorld.{Tile, Robot}
   require Logger
 
-  def occupied?(%Tile{} = tile, row, column, robots) do
+  def occupied?(%Tile{row: row, column: column} = tile, robots) do
     Tile.has_obstacle?(tile) or Enum.any?(robots, &Robot.occupies?(&1, row, column))
   end
 
   def occupied?(row, column, tiles, robots) do
     case get_tile(tiles, row, column) do
       {:ok, tile} ->
-        occupied?(tile, row, column, robots)
+        occupied?(tile, robots)
 
       # Any tile "off the playground" is implicitly occupied
       {:error, _reason} ->
@@ -25,11 +25,19 @@ defmodule AndyWorld.Space do
 
   def get_tile(tiles, row, column) do
     if on_playground?(row, column, tiles) do
-      tile = tiles |> Enum.at(row) |> Enum.at(column)
+      tile =
+        tiles
+        |> Enum.at(row)
+        |> Enum.at(column)
+
       {:ok, tile}
     else
       {:error, :invalid}
     end
+  end
+
+  def robot_tile(tiles, %Robot{x: x, y: y}) do
+    get_tile(tiles, floor(x), floor(y))
   end
 
   def other_robots(robot, robots) do
@@ -63,7 +71,7 @@ defmodule AndyWorld.Space do
       end
 
     case get_tile(tiles, {row, column}) do
-      {:ok, tile} -> {:ok, tile, row, column}
+      {:ok, tile} -> {:ok, tile}
       {:error, reason} -> {:error, reason}
     end
   end
@@ -72,16 +80,16 @@ defmodule AndyWorld.Space do
   def furthest_unobstructed(tiles, x, y, orientation, robots) do
     # look fifth of a tile further
     step = 0.2
-    delta_x = :math.cos(orientation) * step
-    delta_y = :math.sin(orientation) * step
+    delta_x = :math.cos(d2r(orientation)) * step
+    delta_y = :math.sin(d2r(orientation)) * step
     new_x = x + delta_x
     new_y = y + delta_y
     row = floor(new_x)
     column = floor(new_y)
 
     case get_tile(tiles, {row, column}) do
-      {:ok, _tile} ->
-        if occupied?(row, column, tiles, robots) do
+      {:ok, tile} ->
+        if occupied?(tile, robots) do
           {x, y}
         else
           furthest_unobstructed(tiles, new_x, new_y, orientation, robots)
@@ -89,6 +97,40 @@ defmodule AndyWorld.Space do
 
       {:error, _reason} ->
         {x, y}
+    end
+  end
+
+  @doc "Are all "
+  def tile_visible?(
+        %Tile{row: target_row, column: target_column} = target_tile,
+        x,
+        y,
+        tiles,
+        other_robots
+      ) do
+    step = 0.5
+    angle_r = :math.asin((y - target_row) / (x - target_column))
+    delta_x = :math.cos(angle_r) * step
+    delta_y = :math.sin(angle_r) * step
+    new_x = x + delta_x
+    new_y = y + delta_y
+    new_row = floor(new_x)
+    new_column = floor(new_y)
+
+    if new_row == target_row and new_column == target_column do
+      true
+    else
+      case get_tile(tiles, {new_row, new_column}) do
+        {:ok, tile} ->
+          if occupied?(tile, other_robots) do
+            false
+          else
+            tile_visible?(target_tile, new_x, new_y, tiles, other_robots)
+          end
+
+        {:error, _reason} ->
+          false
+      end
     end
   end
 
@@ -109,8 +151,16 @@ defmodule AndyWorld.Space do
     Enum.find(tiles, &(&1.beacon_orientation != nil))
   end
 
-  def angle_perceived(robot, row, column) do
-    # TODO
-    0
+  def angle_perceived(from_x, from_y, sensor_angle, target_x, target_y) do
+    angle = (target_y - from_y) / (target_x - from_x) |> :math.atan() |> r2d()
+    angle - sensor_angle
+  end
+
+  def d2r(d) do
+    d * :math.pi() / 180
+  end
+
+  def r2d(r) do
+    r * 180 / :math.pi()
   end
 end
