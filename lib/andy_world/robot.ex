@@ -85,7 +85,8 @@ defmodule AndyWorld.Robot do
         nil
 
       sensor ->
-        {:ok, tile} = Space.get_tile(tiles, locate(robot))
+        {row, column} = locate(robot)
+        {:ok, tile} = Space.get_tile(tiles, row, column)
 
         apply(Sensor.module_for(sensor_type), :sense, [
           robot,

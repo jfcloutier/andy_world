@@ -6,6 +6,8 @@ defmodule AndyWorld.Space do
   alias AndyWorld.{Tile, Robot}
   require Logger
 
+  @simulated_step 0.2
+
   def occupied?(%Tile{row: row, column: column} = tile, robots) do
     Tile.has_obstacle?(tile) or Enum.any?(robots, &Robot.occupies?(&1, row, column))
   end
@@ -20,8 +22,6 @@ defmodule AndyWorld.Space do
         true
     end
   end
-
-  def get_tile(tiles, {row, column}), do: get_tile(tiles, row, column)
 
   def get_tile(tiles, row, column) do
     if on_playground?(row, column, tiles) do
@@ -49,10 +49,10 @@ defmodule AndyWorld.Space do
 
     cond do
       orientation <= -180 ->
-        orientation + 360
+        normalize_orientation(orientation + 360)
 
       orientation > 180 ->
-        orientation - 360
+        normalize_orientation(orientation - 360)
 
       true ->
         orientation
@@ -66,20 +66,17 @@ defmodule AndyWorld.Space do
       cond do
         angle in -45..45 -> {row - 1, column}
         angle in 45..135 -> {row, column + 1}
-        angle in 135..180 or angle in -180..-135 -> {row - 1, column}
+        angle in 135..180 or angle in -180..-135 -> {row + 1, column}
         angle in -45..-135 -> {row, column - 1}
       end
 
-    case get_tile(tiles, {row, column}) do
-      {:ok, tile} -> {:ok, tile}
-      {:error, reason} -> {:error, reason}
-    end
+    get_tile(tiles, row, column)
   end
 
   @doc "Find the {x,y} of the closest point of obstruction"
-  def furthest_unobstructed(tiles, x, y, orientation, robots) do
+  def closest_obstructed(tiles, x, y, orientation, robots) do
     # look fifth of a tile further
-    step = 0.2
+    step = @simulated_step
     delta_x = :math.cos(d2r(orientation)) * step
     delta_y = :math.sin(d2r(orientation)) * step
     new_x = x + delta_x
@@ -87,12 +84,12 @@ defmodule AndyWorld.Space do
     row = floor(new_x)
     column = floor(new_y)
 
-    case get_tile(tiles, {row, column}) do
+    case get_tile(tiles, row, column) do
       {:ok, tile} ->
         if occupied?(tile, robots) do
           {x, y}
         else
-          furthest_unobstructed(tiles, new_x, new_y, orientation, robots)
+          closest_obstructed(tiles, new_x, new_y, orientation, robots)
         end
 
       {:error, _reason} ->
@@ -108,8 +105,8 @@ defmodule AndyWorld.Space do
         tiles,
         other_robots
       ) do
-    step = 0.5
-    angle_r = :math.asin((y - target_row) / (x - target_column))
+    step = @simulated_step
+    angle_r = :math.atan((y - target_row + 0.5) / (x - target_column + 0.5))
     delta_x = :math.cos(angle_r) * step
     delta_y = :math.sin(angle_r) * step
     new_x = x + delta_x
@@ -120,7 +117,7 @@ defmodule AndyWorld.Space do
     if new_row == target_row and new_column == target_column do
       true
     else
-      case get_tile(tiles, {new_row, new_column}) do
+      case get_tile(tiles, new_row, new_column) do
         {:ok, tile} ->
           if occupied?(tile, other_robots) do
             false
@@ -129,7 +126,8 @@ defmodule AndyWorld.Space do
           end
 
         {:error, _reason} ->
-          false
+          # we somehow missed the target tile but there was no obstruction
+          true
       end
     end
   end
@@ -152,7 +150,9 @@ defmodule AndyWorld.Space do
   end
 
   def angle_perceived(from_x, from_y, sensor_angle, target_x, target_y) do
-    angle = (target_y - from_y) / (target_x - from_x) |> :math.atan() |> r2d()
+    angle = (target_y - from_y) / (target_x - from_x)
+            |> :math.atan()
+            |> r2d()
     angle - sensor_angle
   end
 

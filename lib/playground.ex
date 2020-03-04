@@ -32,14 +32,14 @@ defmodule AndyWorld.Playground do
 
   #
   def handle_call(
-        {:place_robot, name, node, row, column, orientation, sensors_data, motors_data},
+        {:place_robot, name, robot_node, row, column, orientation, sensors_data, motors_data},
         _from,
         %State{robots: robots} = state
       ) do
     case validate_and_register(
            state,
            name: name,
-           node: node,
+           node: robot_node,
            row: row,
            column: column,
            orientation: orientation
@@ -48,7 +48,7 @@ defmodule AndyWorld.Playground do
         robot =
           Robot.new(
             name: name,
-            node: node,
+            node: robot_node,
             orientation: orientation,
             sensors_data: sensors_data,
             motors: motors_data,
