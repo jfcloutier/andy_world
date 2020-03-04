@@ -3,7 +3,7 @@ defmodule AndyWorld.Space do
     Space sense maker
   """
 
-  alias AndyWorld.{Tile, Robot}
+  alias AndyWorld.{Tile, Robot, Sensing.Sensor}
   require Logger
 
   @simulated_step 0.2
@@ -34,6 +34,10 @@ defmodule AndyWorld.Space do
     else
       {:error, :invalid}
     end
+  end
+
+  def get_tile(tiles, %Robot{x: x, y: y}) do
+    get_tile(tiles, floor(y), floor(x))
   end
 
   def robot_tile(tiles, %Robot{x: x, y: y}) do
@@ -132,6 +136,53 @@ defmodule AndyWorld.Space do
     end
   end
 
+  def closest_visible_robot(robot, tiles, other_robots) do
+    visible_other_robots =
+      Enum.filter(
+        other_robots,
+        fn other_robot ->
+          tile_visible?(
+            get_tile(tiles, other_robot),
+            robot.x,
+            robot.y,
+            tiles,
+            other_robots -- [other_robot]
+          )
+        end
+      )
+
+    case Enum.sort(
+           visible_other_robots,
+           &(distance_to_other_robot(robot, &1) <= distance_to_other_robot(robot, &2))
+         ) do
+      [] ->
+        {:error, :not_found}
+
+      [closest_robot | _] ->
+        {:ok, closest_robot}
+    end
+  end
+
+  def direction_to_other_robot(sensor, robot, other_robot) do
+    sensor_angle = Sensor.absolute_orientation(sensor.aim, robot.orientation)
+
+    angle_perceived(robot.x, robot.y, sensor_angle, other_robot.x, other_robot.y)
+  end
+
+  def distance_to_other_robot(robot, other_robot) do
+    delta_y_squared =
+      (other_robot.y - robot.y)
+      |> :math.pow(2)
+
+    delta_x_squared =
+      (other_robot.x - robot.x)
+      |> :math.pow(2)
+
+    distance = :math.sqrt(delta_y_squared + delta_x_squared)
+    distance_cm = distance * Application.get_env(:andy_world, :tile_side_cm)
+    distance_cm
+  end
+
   def row_range(tiles) do
     0..(Enum.count(tiles) - 1)
   end
@@ -150,9 +201,11 @@ defmodule AndyWorld.Space do
   end
 
   def angle_perceived(from_x, from_y, sensor_angle, target_x, target_y) do
-    angle = (target_y - from_y) / (target_x - from_x)
-            |> :math.atan()
-            |> r2d()
+    angle =
+      ((target_y - from_y) / (target_x - from_x))
+      |> :math.atan()
+      |> r2d()
+
     angle - sensor_angle
   end
 
