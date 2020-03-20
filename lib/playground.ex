@@ -30,6 +30,14 @@ defmodule AndyWorld.Playground do
     {:ok, %State{tiles: init_tiles()}}
   end
 
+  def handle_call(:tiles, _from, %State{tiles: tiles} = state) do
+    {:reply, {:ok, tiles}, state}
+  end
+
+  def handle_call(:robots, _from, %State{robots: robots} = state) do
+    {:reply, {:ok, robots}, state}
+  end
+
   #
   def handle_call(
         {:place_robot, name, robot_node, row, column, orientation, sensors_data, motors_data},
@@ -50,7 +58,7 @@ defmodule AndyWorld.Playground do
             name: name,
             node: robot_node,
             orientation: orientation,
-            sensors_data: sensors_data,
+            sensors: sensors_data,
             motors: motors_data,
             row: row,
             column: column
@@ -128,7 +136,7 @@ defmodule AndyWorld.Playground do
             &Tile.from_data(
               row,
               elem(&1, 1),
-              elem(&1, 0),
+              String.graphemes(elem(&1, 0)),
               default_ambient: default_ambient,
               default_color: default_color
             )
@@ -137,6 +145,7 @@ defmodule AndyWorld.Playground do
         ]
       end
     )
+    |> Enum.reverse()
   end
 
   defp validate_and_register(
@@ -163,7 +172,7 @@ defmodule AndyWorld.Playground do
       orientation not in -180..180 ->
         {:error, :invalid_orientation}
 
-      Node.connect(node) != true ->
+      node != node() and Node.connect(node) != true ->
         {:error, :failed_to_connect}
 
       true ->

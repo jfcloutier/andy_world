@@ -9,7 +9,7 @@ defmodule AndyWorld.Space do
   @simulated_step 0.2
 
   def occupied?(%Tile{row: row, column: column} = tile, robots) do
-    Tile.has_obstacle?(tile) or Enum.any?(robots, &Robot.occupies?(&1, row, column))
+    Tile.has_obstacle?(tile) or Enum.any?(Map.values(robots), &Robot.occupies?(&1, row, column))
   end
 
   def occupied?(row, column, tiles, robots) do

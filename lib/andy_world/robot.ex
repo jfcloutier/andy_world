@@ -39,8 +39,8 @@ defmodule AndyWorld.Robot do
       orientation: orientation,
       sensors: sensors,
       motors: motors,
-      x: row * 1.0,
-      y: column * 1.0
+      x: row * 1.0 + 0.5,
+      y: column * 1.0 + 0.5
     }
   end
 
