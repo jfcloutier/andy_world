@@ -95,6 +95,23 @@ defmodule AndyWorld.Playground do
   end
 
   def handle_call(
+        {:move_robot, name: robot_name, row: row, column: column},
+        _from,
+        %State{robots: robots, tiles: tiles} = state
+      ) do
+    robot = Map.fetch!(robots, robot_name)
+    {:ok, tile} = Space.get_tile(tiles, row: row, column: column)
+
+    if Space.occupied?(tile, robots) do
+      {:reply, {:error, :occupied}, state}
+    else
+      moved_robot = Robot.move_to(robot, row: row, column: column)
+      updated_robots = Map.put(robots, robot_name, moved_robot)
+      {:reply, :ok, %State{state | robots: updated_robots}}
+    end
+  end
+
+  def handle_call(
         {:set_motor_control, robot_name, port, control, value},
         _from,
         %State{robots: robots, tiles: tiles} = state
@@ -136,6 +153,7 @@ defmodule AndyWorld.Playground do
     tiles_data = Application.get_env(:andy_world, :playground_tiles)
     default_ambient = Application.get_env(:andy_world, :default_ambient)
     default_color = Application.get_env(:andy_world, :default_color)
+    row_count = Enum.count(tiles_data)
 
     Enum.reduce(
       Enum.with_index(tiles_data),
@@ -145,7 +163,7 @@ defmodule AndyWorld.Playground do
           Enum.map(
             Enum.with_index(String.split(row_data, "|")),
             &Tile.from_data(
-              row,
+              row_count - row - 1,
               elem(&1, 1),
               String.graphemes(elem(&1, 0)),
               default_ambient: default_ambient,
@@ -156,7 +174,6 @@ defmodule AndyWorld.Playground do
         ]
       end
     )
-    |> Enum.reverse()
   end
 
   defp validate_and_register(

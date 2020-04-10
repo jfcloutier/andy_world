@@ -74,6 +74,10 @@ defmodule AndyWorld.Space do
     get_tile(tiles, row: new_row, column: new_column)
   end
 
+  def closest_obstructed(tiles, %Robot{x: x, y: y}, orientation, robots) do
+    closest_obstructed(tiles, {x, y}, orientation, robots)
+  end
+
   def closest_obstructed(tiles, %Tile{row: row, column: column}, orientation, robots) do
     closest_obstructed(tiles, {column, row}, orientation, robots)
   end
@@ -87,6 +91,7 @@ defmodule AndyWorld.Space do
     # Logger.warn("delta_x=#{delta_x} delta_y=#{delta_y}")
     new_x = x + delta_x
     new_y = y + delta_y
+    # Logger.warn("new_x=#{new_x} new_y=#{new_y}")
 
     # points to a different tile yet?
     if floor(new_x) != floor(x) or floor(new_y) != floor(y) do

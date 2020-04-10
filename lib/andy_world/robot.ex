@@ -44,6 +44,10 @@ defmodule AndyWorld.Robot do
     }
   end
 
+  def move_to(robot, row: row, column: column) do
+    %Robot{robot | y: row * 1.0 + 0.5, x: column * 1.0 + 0.5}
+  end
+
   def occupies?(%Robot{x: x, y: y}, row: row, column: column) do
     floor(y) == row and floor(x) == column
   end
