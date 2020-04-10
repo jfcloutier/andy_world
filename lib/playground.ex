@@ -38,9 +38,20 @@ defmodule AndyWorld.Playground do
     {:reply, {:ok, robots}, state}
   end
 
+  def handle_call(:clear_robots, _from, state) do
+    {:reply, :ok, %State{state | robots: %{}}}
+  end
+
   #
   def handle_call(
-        {:place_robot, name, robot_node, row, column, orientation, sensors_data, motors_data},
+        {:place_robot,
+         name: name,
+         node: robot_node,
+         row: row,
+         column: column,
+         orientation: orientation,
+         sensor_data: sensors_data,
+         motor_data: motors_data},
         _from,
         %State{robots: robots} = state
       ) do
@@ -79,7 +90,7 @@ defmodule AndyWorld.Playground do
         }
 
       {:error, reason} ->
-        {:reply, {:error, reason}}
+        {:reply, {:error, reason}, state}
     end
   end
 
@@ -156,6 +167,8 @@ defmodule AndyWorld.Playground do
          column: column,
          orientation: orientation
        ) do
+    {:ok, tile} = Space.get_tile(tiles, row: row, column: column)
+
     cond do
       name in Map.keys(robots) ->
         {:error, :name_taken}
@@ -166,7 +179,7 @@ defmodule AndyWorld.Playground do
       column not in Space.column_range(tiles) ->
         {:error, :invalid_column}
 
-      Space.occupied?(row, column, tiles, robots) ->
+      Space.occupied?(tile, robots) ->
         {:error, :occupied}
 
       orientation not in -180..180 ->

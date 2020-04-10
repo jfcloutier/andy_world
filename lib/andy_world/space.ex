@@ -9,21 +9,11 @@ defmodule AndyWorld.Space do
   @simulated_step 0.2
 
   def occupied?(%Tile{row: row, column: column} = tile, robots) do
-    Tile.has_obstacle?(tile) or Enum.any?(Map.values(robots), &Robot.occupies?(&1, row, column))
+    Tile.has_obstacle?(tile) or
+      Enum.any?(Map.values(robots), &Robot.occupies?(&1, row: row, column: column))
   end
 
-  def occupied?(row, column, tiles, robots) do
-    case get_tile(tiles, row, column) do
-      {:ok, tile} ->
-        occupied?(tile, robots)
-
-      # Any tile "off the playground" is implicitly occupied
-      {:error, _reason} ->
-        true
-    end
-  end
-
-  def get_tile(tiles, row, column) do
+  def get_tile(tiles, row: row, column: column) do
     if on_playground?(row, column, tiles) do
       tile =
         tiles
@@ -37,11 +27,16 @@ defmodule AndyWorld.Space do
   end
 
   def get_tile(tiles, %Robot{x: x, y: y}) do
-    get_tile(tiles, floor(y), floor(x))
+    get_tile(tiles, {x, y})
   end
 
+  def get_tile(tiles, {x, y}) do
+    get_tile(tiles, row: floor(y), column: floor(x))
+  end
+
+  @spec robot_tile(any, AndyWorld.Robot.t()) :: {:error, :invalid} | {:ok, any}
   def robot_tile(tiles, %Robot{x: x, y: y}) do
-    get_tile(tiles, floor(x), floor(y))
+    get_tile(tiles, row: floor(y), column: floor(x))
   end
 
   def other_robots(robot, robots) do
@@ -65,8 +60,10 @@ defmodule AndyWorld.Space do
 
   @spec tile_adjoining_at_angle(integer, {non_neg_integer, non_neg_integer}, [%Tile{}]) ::
           {:ok, %Tile{}, non_neg_integer, non_neg_integer} | {:error, atom}
-  def tile_adjoining_at_angle(angle, {row, column}, tiles) do
-    {row, column} =
+  def tile_adjoining_at_angle(angle, {x, y}, tiles) do
+    {:ok, %Tile{row: row, column: column}} = get_tile(tiles, {x, y})
+
+    {new_row, new_column} =
       cond do
         angle in -45..45 -> {row - 1, column}
         angle in 45..135 -> {row, column + 1}
@@ -74,38 +71,45 @@ defmodule AndyWorld.Space do
         angle in -45..-135 -> {row, column - 1}
       end
 
-    get_tile(tiles, row, column)
+    get_tile(tiles, row: new_row, column: new_column)
+  end
+
+  def closest_obstructed(tiles, %Tile{row: row, column: column}, orientation, robots) do
+    closest_obstructed(tiles, {column, row}, orientation, robots)
   end
 
   @doc "Find the {x,y} of the closest point of obstruction"
-  def closest_obstructed(tiles, x, y, orientation, robots) do
+  def closest_obstructed(tiles, {x, y}, orientation, robots) when is_number(x) and is_number(y) do
     # look fifth of a tile further
     step = @simulated_step
-    delta_x = :math.cos(d2r(orientation)) * step
-    delta_y = :math.sin(d2r(orientation)) * step
+    delta_y = :math.cos(d2r(orientation)) * step
+    delta_x = :math.sin(d2r(orientation)) * step
+    # Logger.warn("delta_x=#{delta_x} delta_y=#{delta_y}")
     new_x = x + delta_x
     new_y = y + delta_y
-    row = floor(new_x)
-    column = floor(new_y)
 
-    case get_tile(tiles, row, column) do
-      {:ok, tile} ->
-        if occupied?(tile, robots) do
-          {x, y}
-        else
-          closest_obstructed(tiles, new_x, new_y, orientation, robots)
-        end
+    # points to a different tile yet?
+    if floor(new_x) != floor(x) or floor(new_y) != floor(y) do
+      case get_tile(tiles, {new_x, new_y}) do
+        {:ok, tile} ->
+          if occupied?(tile, robots) do
+            {floor(x), floor(y)}
+          else
+            closest_obstructed(tiles, {new_x, new_y}, orientation, robots)
+          end
 
-      {:error, _reason} ->
-        {x, y}
+        {:error, _reason} ->
+          {floor(x), floor(y)}
+      end
+    else
+      closest_obstructed(tiles, {new_x, new_y}, orientation, robots)
     end
   end
 
   @doc "Are all "
   def tile_visible?(
         %Tile{row: target_row, column: target_column} = target_tile,
-        x,
-        y,
+        {x, y},
         tiles,
         other_robots
       ) do
@@ -115,18 +119,16 @@ defmodule AndyWorld.Space do
     delta_y = :math.sin(angle_r) * step
     new_x = x + delta_x
     new_y = y + delta_y
-    new_row = floor(new_x)
-    new_column = floor(new_y)
 
-    if new_row == target_row and new_column == target_column do
+    if floor(new_y) == target_row and floor(new_x) == target_column do
       true
     else
-      case get_tile(tiles, new_row, new_column) do
+      case get_tile(tiles, {new_x, new_y}) do
         {:ok, tile} ->
           if occupied?(tile, other_robots) do
             false
           else
-            tile_visible?(target_tile, new_x, new_y, tiles, other_robots)
+            tile_visible?(target_tile, {new_x, new_y}, tiles, other_robots)
           end
 
         {:error, _reason} ->
@@ -143,8 +145,7 @@ defmodule AndyWorld.Space do
         fn other_robot ->
           tile_visible?(
             get_tile(tiles, other_robot),
-            robot.x,
-            robot.y,
+            {robot.x, robot.y},
             tiles,
             other_robots -- [other_robot]
           )

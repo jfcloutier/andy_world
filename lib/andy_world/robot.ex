@@ -39,17 +39,17 @@ defmodule AndyWorld.Robot do
       orientation: orientation,
       sensors: sensors,
       motors: motors,
-      x: row * 1.0 + 0.5,
-      y: column * 1.0 + 0.5
+      y: row * 1.0 + 0.5,
+      x: column * 1.0 + 0.5
     }
   end
 
-  def occupies?(%Robot{x: x, y: y}, row, column) do
-    floor(x) == row and floor(y) == column
+  def occupies?(%Robot{x: x, y: y}, row: row, column: column) do
+    floor(y) == row and floor(x) == column
   end
 
   def locate(%Robot{x: x, y: y}) do
-    {floor(x), floor(y)}
+    {x, y}
   end
 
   def set_motor_control(%Robot{motors: motors} = robot, motor_port, control, value) do
@@ -85,8 +85,8 @@ defmodule AndyWorld.Robot do
         nil
 
       sensor ->
-        {row, column} = locate(robot)
-        {:ok, tile} = Space.get_tile(tiles, row, column)
+        {x, y} = locate(robot)
+        {:ok, tile} = Space.get_tile(tiles, {x, y})
 
         apply(Sensor.module_for(sensor_type), :sense, [
           robot,
@@ -209,7 +209,7 @@ defmodule AndyWorld.Robot do
     delta_y = :math.sin(Space.d2r(angle)) * distance
     new_x = x + delta_x
     new_y = y + delta_y
-    {:ok, tile} = Space.get_tile(tiles, floor(new_x), floor(new_y))
+    {:ok, tile} = Space.get_tile(tiles, {new_x, new_y})
 
     if Space.occupied?(tile, other_robots) do
       {x, y}

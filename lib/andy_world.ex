@@ -14,4 +14,8 @@ defmodule AndyWorld do
   def robots() do
     GenServer.call(playground(), :robots)
   end
+
+  def clear_robots() do
+    GenServer.call(playground(), :clear_robots)
+  end
 end

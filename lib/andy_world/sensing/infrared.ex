@@ -18,7 +18,7 @@ defmodule AndyWorld.Sensing.Infrared do
         if beacon_in_front?(
              beacon_tile,
              robot
-           ) and Space.tile_visible?(beacon_tile, robot.x, robot.y, tiles, other_robots) do
+           ) and Space.tile_visible?(beacon_tile, {robot.x, robot.y}, tiles, other_robots) do
           sensor_angle = Sensor.absolute_orientation(infrared_sensor.aim, robot.orientation)
 
           angle_perceived =
@@ -54,7 +54,7 @@ defmodule AndyWorld.Sensing.Infrared do
         if beacon_in_front?(
              beacon_tile,
              robot
-           ) and Space.tile_visible?(beacon_tile, robot.x, robot.y, tiles, other_robots) do
+           ) and Space.tile_visible?(beacon_tile, {robot.x, robot.y}, tiles, other_robots) do
           sensor_angle = Sensor.absolute_orientation(infrared_sensor.aim, robot.orientation)
 
           angle_perceived =

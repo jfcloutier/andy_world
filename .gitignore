@@ -36,3 +36,6 @@ npm-debug.log
 /.idea/
 *.iml
 *.xml
+.elixir_ls/
+.gitignore
+launch.json
