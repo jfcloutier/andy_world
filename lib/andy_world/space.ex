@@ -43,6 +43,7 @@ defmodule AndyWorld.Space do
     Enum.reject(robots, &(&1.name == robot.name))
   end
 
+  @doc "Converts an angle so that angle in -180..180"
   def normalize_orientation(angle) do
     orientation = rem(angle, 360)
 
@@ -60,15 +61,17 @@ defmodule AndyWorld.Space do
 
   @spec tile_adjoining_at_angle(integer, {non_neg_integer, non_neg_integer}, [%Tile{}]) ::
           {:ok, %Tile{}, non_neg_integer, non_neg_integer} | {:error, atom}
+  @doc "Only tiles sharing a border are adjoining"
   def tile_adjoining_at_angle(angle, {x, y}, tiles) do
     {:ok, %Tile{row: row, column: column}} = get_tile(tiles, {x, y})
+    normalized_angle = normalize_orientation(angle)
 
     {new_row, new_column} =
       cond do
-        angle in -45..45 -> {row - 1, column}
-        angle in 45..135 -> {row, column + 1}
-        angle in 135..180 or angle in -180..-135 -> {row + 1, column}
-        angle in -45..-135 -> {row, column - 1}
+        normalized_angle in -45..45 -> {row + 1, column}
+        normalized_angle in 45..135 -> {row, column + 1}
+        normalized_angle in 135..180 or normalized_angle in -180..-135 -> {row - 1, column}
+        normalized_angle in -135..-45 -> {row, column - 1}
       end
 
     get_tile(tiles, row: new_row, column: new_column)

@@ -86,7 +86,7 @@ defmodule AndyWorld.Test do
       assert {9.5, 0.5} == Robot.locate(robot)
     end
 
-    test "Visibility", %{tiles: tiles} do
+    test "Closest obstructed", %{tiles: tiles} do
       :ok =
         GenServer.call(
           AndyWorld.playground(),
@@ -132,5 +132,25 @@ defmodule AndyWorld.Test do
       assert x < 9
       assert y = 2
     end
+  end
+
+  test "Adjoining tile", %{tiles: tiles} do
+    {:ok, %Tile{row: row, column: column}} = Space.tile_adjoining_at_angle(0, {2.5, 4.5}, tiles)
+    assert row == 5
+    assert column = 2
+    {:ok, %Tile{row: row, column: column}} = Space.tile_adjoining_at_angle(90, {2.5, 4.5}, tiles)
+    assert row == 4
+    assert column = 3
+    {:ok, %Tile{row: row, column: column}} = Space.tile_adjoining_at_angle(180, {2.5, 4.5}, tiles)
+    assert row == 3
+    assert column = 2
+    {:ok, %Tile{row: row, column: column}} = Space.tile_adjoining_at_angle(270, {2.5, 4.5}, tiles)
+    assert row == 4
+    assert column = 1
+    {:ok, %Tile{row: row, column: column}} = Space.tile_adjoining_at_angle(720, {2.5, 4.5}, tiles)
+    assert row == 5
+    assert column = 2
+    {:error, :invalid} = Space.tile_adjoining_at_angle(180, {0, 0}, tiles)
+
   end
 end
