@@ -65,15 +65,14 @@ defmodule AndyWorld.Robot do
   def actuate(
         %Robot{motors: motors} = robot,
         %{kind: :locomotion} = _intent,
-        tiles,
-        robots
+        tiles
       ) do
-    updated_robot = run_motors(robot, tiles, Space.other_robots(robot, robots))
+    updated_robot = run_motors(robot, tiles)
     reset_motors = Enum.map(motors, &Motor.reset_controls(&1))
     %Robot{updated_robot | motors: reset_motors}
   end
 
-  def actuate(robot, _intent, _tiles, _robots) do
+  def actuate(robot, _intent, _tiles) do
     # Do nothing for now
     robot
   end
@@ -82,7 +81,7 @@ defmodule AndyWorld.Robot do
     Enum.find(sensors, &Sensor.has_type?(&1, type))
   end
 
-  def sense(robot, sensor_type, sense, tiles, other_robots) do
+  def sense(robot, sensor_type, sense, tiles) do
     case find_sensor(robot, sensor_type) do
       nil ->
         Logger.warn("Robot #{robot.name} has no sensor of type #{inspect(sensor_type)}")
@@ -97,8 +96,7 @@ defmodule AndyWorld.Robot do
           sensor,
           sense,
           tile,
-          tiles,
-          other_robots
+          tiles
         ])
     end
   end
@@ -111,8 +109,7 @@ defmodule AndyWorld.Robot do
 
   defp run_motors(
          %Robot{motors: motors} = robot,
-         tiles,
-         other_robots
+         tiles
        ) do
     durations = Enum.map(motors, &Motor.run_duration(&1))
     tick_duration = durations |> Enum.min() |> min(@largest_tick_duration)
@@ -137,8 +134,7 @@ defmodule AndyWorld.Robot do
             acc,
             degrees_per_rotation,
             tiles_per_rotation,
-            tiles,
-            other_robots
+            tiles
           )
         end
       )
@@ -153,8 +149,7 @@ defmodule AndyWorld.Robot do
          %{orientation: orientation, x: x, y: y},
          degrees_per_rotation,
          tiles_per_rotation,
-         tiles,
-         other_robots
+         tiles
        ) do
     # negative if backward-moving rotations
     left_forward_rotations =
@@ -179,8 +174,7 @@ defmodule AndyWorld.Robot do
         left_forward_rotations,
         right_forward_rotations,
         tiles_per_rotation,
-        tiles,
-        other_robots
+        tiles
       )
 
     %{orientation: angle, x: new_x, y: new_y}
@@ -204,8 +198,7 @@ defmodule AndyWorld.Robot do
          left_forward_rotations,
          right_forward_rotations,
          tiles_per_rotation,
-         tiles,
-         other_robots
+         tiles
        ) do
     rotations = (left_forward_rotations + right_forward_rotations) |> div(2)
     distance = rotations * tiles_per_rotation
@@ -215,7 +208,7 @@ defmodule AndyWorld.Robot do
     new_y = y + delta_y
     {:ok, tile} = Space.get_tile(tiles, {new_x, new_y})
 
-    if Space.occupied?(tile, other_robots) do
+    if Space.occupied?(tile) do
       {x, y}
     else
       {new_x, new_y}

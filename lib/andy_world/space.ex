@@ -8,9 +8,21 @@ defmodule AndyWorld.Space do
 
   @simulated_step 0.2
 
+  def occupied?(%Tile{} = tile) do
+    {:ok, robots} = AndyWorld.robots()
+    occupied?(tile, robots)
+  end
+
   def occupied?(%Tile{row: row, column: column} = tile, robots) do
     Tile.has_obstacle?(tile) or
       Enum.any?(Map.values(robots), &Robot.occupies?(&1, row: row, column: column))
+  end
+
+  def unavailable_to?(
+        %Tile{row: row, column: column} = tile,
+        %Robot{} = robot
+      ) do
+    not Robot.occupies?(robot, row: row, column: column) and occupied?(tile)
   end
 
   def get_tile(tiles, row: row, column: column) do
@@ -37,10 +49,6 @@ defmodule AndyWorld.Space do
   @spec robot_tile(any, AndyWorld.Robot.t()) :: {:error, :invalid} | {:ok, any}
   def robot_tile(tiles, %Robot{x: x, y: y}) do
     get_tile(tiles, row: floor(y), column: floor(x))
-  end
-
-  def other_robots(robot, robots) do
-    Enum.reject(robots, &(&1.name == robot.name))
   end
 
   @doc "Converts an angle so that angle in -180..180"
@@ -77,16 +85,16 @@ defmodule AndyWorld.Space do
     get_tile(tiles, row: new_row, column: new_column)
   end
 
-  def closest_obstructed(tiles, %Robot{x: x, y: y}, orientation, robots) do
-    closest_obstructed(tiles, {x, y}, orientation, robots)
+  def closest_obstructed(tiles, %Robot{x: x, y: y}, orientation) do
+    closest_obstructed(tiles, {x, y}, orientation)
   end
 
-  def closest_obstructed(tiles, %Tile{row: row, column: column}, orientation, robots) do
-    closest_obstructed(tiles, {column, row}, orientation, robots)
+  def closest_obstructed(tiles, %Tile{row: row, column: column}, orientation) do
+    closest_obstructed(tiles, {column, row}, orientation)
   end
 
   @doc "Find the {x,y} of the closest point of obstruction"
-  def closest_obstructed(tiles, {x, y}, orientation, robots) when is_number(x) and is_number(y) do
+  def closest_obstructed(tiles, {x, y}, orientation) when is_number(x) and is_number(y) do
     # look fifth of a tile further
     step = @simulated_step
     delta_y = :math.cos(d2r(orientation)) * step
@@ -100,62 +108,43 @@ defmodule AndyWorld.Space do
     if floor(new_x) != floor(x) or floor(new_y) != floor(y) do
       case get_tile(tiles, {new_x, new_y}) do
         {:ok, tile} ->
-          if occupied?(tile, robots) do
+          if occupied?(tile) do
             {floor(x), floor(y)}
           else
-            closest_obstructed(tiles, {new_x, new_y}, orientation, robots)
+            closest_obstructed(tiles, {new_x, new_y}, orientation)
           end
 
         {:error, _reason} ->
           {floor(x), floor(y)}
       end
     else
-      closest_obstructed(tiles, {new_x, new_y}, orientation, robots)
+      closest_obstructed(tiles, {new_x, new_y}, orientation)
     end
   end
 
-  @doc "Are all "
-  def tile_visible?(
-        %Tile{row: target_row, column: target_column} = target_tile,
-        {x, y},
-        tiles,
-        other_robots
+  @doc "Is a tile visible from a given location?"
+  def tile_visible_to?(
+        %Tile{} = target_tile,
+        %Robot{x: x, y: y} = robot,
+        tiles
       ) do
-    step = @simulated_step
-    angle_r = :math.atan((y - target_row + 0.5) / (x - target_column + 0.5))
-    delta_x = :math.cos(angle_r) * step
-    delta_y = :math.sin(angle_r) * step
-    new_x = x + delta_x
-    new_y = y + delta_y
-
-    if floor(new_y) == target_row and floor(new_x) == target_column do
-      true
-    else
-      case get_tile(tiles, {new_x, new_y}) do
-        {:ok, tile} ->
-          if occupied?(tile, other_robots) do
-            false
-          else
-            tile_visible?(target_tile, {new_x, new_y}, tiles, other_robots)
-          end
-
-        {:error, _reason} ->
-          # we somehow missed the target tile but there was no obstruction
-          true
-      end
-    end
+    tile_visible_from?(target_tile, {x, y}, tiles, robot)
   end
 
-  def closest_visible_robot(robot, tiles, other_robots) do
+  def closest_visible_robot(%Robot{x: x, y: y} = robot, tiles) do
+    {:ok, other_robots} = AndyWorld.robots_other_than(robot.name)
+
     visible_other_robots =
       Enum.filter(
         other_robots,
         fn other_robot ->
-          tile_visible?(
-            get_tile(tiles, other_robot),
-            {robot.x, robot.y},
+          {:ok, tile} = get_tile(tiles, other_robot)
+
+          tile_visible_from?(
+            tile,
+            {x, y},
             tiles,
-            other_robots -- [other_robot]
+            other_robot
           )
         end
       )
@@ -172,6 +161,11 @@ defmodule AndyWorld.Space do
     end
   end
 
+  @spec direction_to_other_robot(
+          atom | %{aim: integer},
+          atom | %{orientation: integer, x: number, y: number},
+          atom | %{x: number, y: number}
+        ) :: float
   def direction_to_other_robot(sensor, robot, other_robot) do
     sensor_angle = Sensor.absolute_orientation(sensor.aim, robot.orientation)
 
@@ -224,5 +218,47 @@ defmodule AndyWorld.Space do
 
   def r2d(r) do
     r * 180 / :math.pi()
+  end
+
+  ### PRIVATE
+
+  defp tile_visible_from?(
+         %Tile{row: target_row, column: target_column} = target_tile,
+         {x, y},
+         tiles,
+         # this robot is not an obstacle
+         %Robot{} = robot
+       ) do
+    step = @simulated_step
+    distance_x = target_column + 0.5 - x
+    Logger.info("distance_x=#{distance_x}")
+    distance_y = max(target_row + 0.5 - y, 0.0000000000001)
+    Logger.info("distance_y=#{distance_y}")
+    angle_r = :math.atan(distance_x / distance_y)
+    Logger.info("angle_r=#{angle_r} => #{r2d(angle_r)} degrees")
+    delta_y = :math.cos(angle_r) * step
+    Logger.info("delta_y=#{delta_y}")
+    delta_x = :math.sin(angle_r) * step
+    Logger.info("delta_x=#{delta_x}")
+    new_x = x + delta_x
+    new_y = y + delta_y
+    Logger.info("location={#{new_x},#{new_y}}")
+
+    if floor(new_y) == target_row and floor(new_x) == target_column do
+      true
+    else
+      case get_tile(tiles, {new_x, new_y}) do
+        {:ok, tile} ->
+          if unavailable_to?(tile, robot) do
+            false
+          else
+            tile_visible_from?(target_tile, {new_x, new_y}, tiles, robot)
+          end
+
+        {:error, _reason} ->
+          # we somehow missed the target tile but there was no obstruction
+          true
+      end
+    end
   end
 end

@@ -8,7 +8,6 @@ defmodule AndyWorld.Sensing do
               sensor :: %Sensor{},
               sense :: atom,
               tile :: %Tile{},
-              tiles :: [%Tile{}],
-              other_robots :: [%Robot{}]
+              tiles :: [%Tile{}]
             ) :: any
 end

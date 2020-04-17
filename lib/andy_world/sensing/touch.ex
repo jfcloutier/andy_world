@@ -5,12 +5,12 @@ defmodule AndyWorld.Sensing.Touch do
 
   @behaviour Sensing
 
-  def sensed(robot, touch_sensor, :touch, _tile, tiles, other_robots) do
+  def sensed(robot, touch_sensor, :touch, _tile, tiles) do
     angle = Sensor.absolute_orientation(touch_sensor.aim, robot.orientation)
 
     case Space.tile_adjoining_at_angle(angle, Robot.locate(robot), tiles) do
       {:ok, tile} ->
-        if Space.occupied?(tile, other_robots), do: :pressed, else: :released
+        if Space.occupied?(tile), do: :pressed, else: :released
 
       # tile is off the playground
       {:error, _reason} ->

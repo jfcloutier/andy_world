@@ -3,6 +3,7 @@ defmodule AndyWorld.Playground do
 
   use GenServer
 
+  alias __MODULE__
   alias AndyWorld.{Space, Tile, Robot}
   require Logger
 
@@ -30,12 +31,24 @@ defmodule AndyWorld.Playground do
     {:ok, %State{tiles: init_tiles()}}
   end
 
+  def robots() do
+    GenServer.call(Playground, :robots)
+  end
+
   def handle_call(:tiles, _from, %State{tiles: tiles} = state) do
     {:reply, {:ok, tiles}, state}
   end
 
   def handle_call(:robots, _from, %State{robots: robots} = state) do
     {:reply, {:ok, robots}, state}
+  end
+
+  def handle_call({:robot, robot_name}, _from, %State{robots: robots} = state) do
+    {:reply, Map.fetch(robots, robot_name), state}
+  end
+
+  def handle_call({:robots_other_than, robot_name}, _from, %State{robots: robots} = state) do
+    {:reply, {:ok, Enum.reject(robots, &(&1.name == robot_name))}, state}
   end
 
   def handle_call(:clear_robots, _from, state) do
@@ -77,7 +90,7 @@ defmodule AndyWorld.Playground do
 
         {
           :reply,
-          :ok,
+          {:ok, robot},
           %State{
             state
             | robots:
@@ -107,8 +120,20 @@ defmodule AndyWorld.Playground do
     else
       moved_robot = Robot.move_to(robot, row: row, column: column)
       updated_robots = Map.put(robots, robot_name, moved_robot)
-      {:reply, :ok, %State{state | robots: updated_robots}}
+      {:reply, {:ok, moved_robot}, %State{state | robots: updated_robots}}
     end
+  end
+
+  def handle_call(
+        {:orient_robot, name: robot_name, orientation: orientation},
+        _from,
+        %State{robots: robots} = state
+      ) do
+    robot = Map.fetch!(robots, robot_name)
+    oriented_robot = %Robot{robot | orientation: orientation}
+
+    updated_robots = Map.put(robots, robot_name, oriented_robot)
+    {:reply, {:ok, oriented_robot}, %State{state | robots: updated_robots}}
   end
 
   def handle_call(
@@ -128,7 +153,7 @@ defmodule AndyWorld.Playground do
 
   def handle_call({:actuated, robot_name, intent}, _from, %{robots: robots, tiles: tiles} = state) do
     robot = Map.fetch!(robots, robot_name)
-    updated_robot = Robot.actuate(robot, intent, tiles, robot)
+    updated_robot = Robot.actuate(robot, intent, tiles)
     {:reply, :ok, %State{state | robots: Map.put(robots, robot.name, updated_robot)}}
   end
 
@@ -138,7 +163,7 @@ defmodule AndyWorld.Playground do
         %State{robots: robots, tiles: tiles} = state
       ) do
     robot = Map.fetch!(robots, robot_name)
-    value = Robot.sense(robot, sensor_type, sense, tiles, Space.other_robots(robot, robots))
+    value = Robot.sense(robot, sensor_type, sense, tiles)
     {:reply, {:ok, value}, state}
   end
 
