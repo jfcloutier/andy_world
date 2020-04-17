@@ -82,8 +82,7 @@ defmodule AndyWorld.Playground.Test do
           {:move_robot, name: :andy, row: 0, column: 9}
         )
 
-      {:ok, robots} = AndyWorld.robots()
-      andy_robot = Map.fetch!(robots, :andy)
+      {:ok, andy_robot} = AndyWorld.robot(:andy)
       assert andy_robot == robot
       assert {9.5, 0.5} == Robot.locate(robot)
     end

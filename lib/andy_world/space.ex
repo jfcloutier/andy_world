@@ -15,7 +15,7 @@ defmodule AndyWorld.Space do
 
   def occupied?(%Tile{row: row, column: column} = tile, robots) do
     Tile.has_obstacle?(tile) or
-      Enum.any?(Map.values(robots), &Robot.occupies?(&1, row: row, column: column))
+      Enum.any?(robots, &Robot.occupies?(&1, row: row, column: column))
   end
 
   def unavailable_to?(
@@ -129,7 +129,8 @@ defmodule AndyWorld.Space do
     tile_visible_from?(target_tile, {x, y}, tiles, robot)
   end
 
-  def closest_visible_robot(%Robot{x: x, y: y} = robot, tiles) do
+  def closest_robot_visible_to(%Robot{x: x, y: y} = robot, tiles) do
+    # Logger.debug("Looking for robot closest to #{robot.name} located at {#{x},#{y}}")
     {:ok, other_robots} = AndyWorld.robots_other_than(robot.name)
 
     visible_other_robots =
@@ -137,13 +138,18 @@ defmodule AndyWorld.Space do
         other_robots,
         fn other_robot ->
           {:ok, tile} = get_tile(tiles, other_robot)
+          # Logger.debug("#{other_robot.name} on row #{tile.row} column #{tile.column}")
 
-          tile_visible_from?(
-            tile,
-            {x, y},
-            tiles,
-            other_robot
-          )
+          visible? =
+            tile_visible_from?(
+              tile,
+              {x, y},
+              tiles,
+              robot
+            )
+
+          # Logger.debug("visible? == #{visible?}")
+          visible?
         end
       )
 
@@ -152,9 +158,11 @@ defmodule AndyWorld.Space do
            &(distance_to_other_robot(robot, &1) <= distance_to_other_robot(robot, &2))
          ) do
       [] ->
+        # Logger.debug("Found no robot closest to #{robot.name}")
         {:error, :not_found}
 
       [closest_robot | _] ->
+        # Logger.debug("Robot #{closest_robot.name} is closest to #{robot.name}")
         {:ok, closest_robot}
     end
   end
@@ -227,14 +235,46 @@ defmodule AndyWorld.Space do
          # this robot is not an obstacle
          %Robot{} = robot
        ) do
+    distance_x =
+      case target_column + 0.5 - x do
+        0.0 -> 0.00000000001
+        other -> other
+      end
+
+    # Logger.info(
+    #   "Tile at #{inspect(Tile.location(target_tile))} visible from #{inspect({x, y})} for #{
+    #     robot.name
+    #   }?"
+    # )
+
+    # Logger.debug("distance_x=#{distance_x}")
+    distance_y = target_row + 0.5 - y
+    # Logger.debug("distance_y=#{distance_y}")
+    angle_r = :math.atan(abs(distance_y / distance_x))
+    signs = {sign(distance_x), sign(distance_y)}
+    # Logger.debug("angle_r=#{angle_r} signs=#{inspect(signs)}")
+    tile_visible_from?(target_tile, {x, y}, tiles, robot, angle_r, signs)
+  end
+
+  defp tile_visible_from?(
+         %Tile{row: target_row, column: target_column} = target_tile,
+         {x, y},
+         tiles,
+         # this robot is not an obstacle
+         %Robot{} = robot,
+         angle_r,
+         {sign_x, sign_y} = signs
+       ) do
     step = @simulated_step
-    distance_x = target_column + 0.5 - x
-    distance_y = max(target_row + 0.5 - y, 0.0000000000001)
-    angle_r = :math.atan(distance_x / distance_y)
-    delta_y = :math.cos(angle_r) * step
-    delta_x = :math.sin(angle_r) * step
+    # Logger.debug("angle_r=#{angle_r} => #{r2d(angle_r)} degrees")
+    delta_x = :math.cos(angle_r) * step * sign_x
+    # Logger.debug("delta_x=#{delta_x}")
+    delta_y = :math.sin(angle_r) * step * sign_y
+    # Logger.debug("delta_y=#{delta_y}")
     new_x = x + delta_x
     new_y = y + delta_y
+
+    # Logger.debug("location={#{new_x},#{new_y}}")
 
     if floor(new_y) == target_row and floor(new_x) == target_column do
       true
@@ -242,15 +282,25 @@ defmodule AndyWorld.Space do
       case get_tile(tiles, {new_x, new_y}) do
         {:ok, tile} ->
           if unavailable_to?(tile, robot) do
+            Logger.info(
+              "Obstacle at row #{tile.row} column #{tile.column} hides target tile at row #{
+                target_tile.row
+              } column #{target_tile.column}"
+            )
+
             false
           else
-            tile_visible_from?(target_tile, {new_x, new_y}, tiles, robot)
+            tile_visible_from?(target_tile, {new_x, new_y}, tiles, robot, angle_r, signs)
           end
 
         {:error, _reason} ->
+          Logger.info("Off the board!")
           # we somehow missed the target tile but there was no obstruction
           true
       end
     end
   end
+
+  defp sign(n) when n < 0, do: -1
+  defp sign(_n), do: 1
 end

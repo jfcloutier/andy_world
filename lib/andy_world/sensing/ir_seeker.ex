@@ -9,7 +9,7 @@ defmodule AndyWorld.Sensing.IRSeeker do
   # Caveat: if closest visible robot is at an abs angle > 120, then it will hide another
   def sensed(robot, ir_seeker_sensor, sense, _robot_tile, tiles)
       when sense in [:direction, :direction_mod] do
-    case Space.closest_visible_robot(robot, tiles) do
+    case Space.closest_robot_visible_to(robot, tiles) do
       {:error, :not_found} ->
         :unknown
 
@@ -23,7 +23,7 @@ defmodule AndyWorld.Sensing.IRSeeker do
   # Caveat: if closest visible robot is at an abs angle > 120, then it will hide another
   def sensed(robot, ir_seeker_sensor, sense, _robot_tile, tiles)
       when sense in [:proximity, :proximity_mod] do
-    case Space.closest_visible_robot(robot, tiles) do
+    case Space.closest_robot_visible_to(robot, tiles) do
       {:error, :not_found} ->
         :unknown
 

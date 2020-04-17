@@ -43,6 +43,10 @@ defmodule AndyWorld.Tile do
     0
   end
 
+  def location(%Tile{row: row, column: column}) do
+    {column + 0.5, row + 0.5}
+  end
+
   defp convert_height("_"), do: 0
 
   defp convert_height(height_s) do

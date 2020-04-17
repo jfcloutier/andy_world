@@ -157,5 +157,47 @@ defmodule AndyWorld.Space.Test do
                  tiles
                )
     end
+
+    test "Closest visible robot", %{tiles: tiles} do
+      {:ok, andy} =
+        AndyWorld.place_robot(
+          name: :andy,
+          node: node(),
+          row: 6,
+          column: 9,
+          orientation: 0,
+          sensor_data: %{},
+          motor_data: %{}
+        )
+
+      {:ok, _karl} =
+        AndyWorld.place_robot(
+          name: :karl,
+          node: node(),
+          row: 1,
+          column: 1,
+          orientation: 0,
+          sensor_data: %{},
+          motor_data: %{}
+        )
+
+      {:ok, _rodney} =
+        AndyWorld.place_robot(
+          name: :rodney,
+          node: node(),
+          row: 18,
+          column: 18,
+          orientation: 0,
+          sensor_data: %{},
+          motor_data: %{}
+        )
+
+      {:ok, closest_robot} = Space.closest_robot_visible_to(andy, tiles)
+      assert closest_robot.name == :karl
+
+      {:ok, _karl} = AndyWorld.move_robot(name: :karl, row: 8, column: 15)
+      {:ok, closest_robot} = Space.closest_robot_visible_to(andy, tiles)
+      assert closest_robot.name == :rodney
+    end
   end
 end

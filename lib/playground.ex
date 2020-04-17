@@ -27,6 +27,7 @@ defmodule AndyWorld.Playground do
     GenServer.start_link(__MODULE__, :ok, name: {:global, :andy_world})
   end
 
+  @spec init(any) :: {:ok, AndyWorld.Playground.State.t()}
   def init(_) do
     {:ok, %State{tiles: init_tiles()}}
   end
@@ -40,7 +41,7 @@ defmodule AndyWorld.Playground do
   end
 
   def handle_call(:robots, _from, %State{robots: robots} = state) do
-    {:reply, {:ok, robots}, state}
+    {:reply, {:ok, Map.values(robots)}, state}
   end
 
   def handle_call({:robot, robot_name}, _from, %State{robots: robots} = state) do
@@ -48,7 +49,8 @@ defmodule AndyWorld.Playground do
   end
 
   def handle_call({:robots_other_than, robot_name}, _from, %State{robots: robots} = state) do
-    {:reply, {:ok, Enum.reject(robots, &(&1.name == robot_name))}, state}
+    other_robots = Map.delete(robots, robot_name) |> Map.values()
+    {:reply, {:ok, other_robots}, state}
   end
 
   def handle_call(:clear_robots, _from, state) do
@@ -115,7 +117,7 @@ defmodule AndyWorld.Playground do
     robot = Map.fetch!(robots, robot_name)
     {:ok, tile} = Space.get_tile(tiles, row: row, column: column)
 
-    if Space.occupied?(tile, robots) do
+    if Space.occupied?(tile, Map.values(robots)) do
       {:reply, {:error, :occupied}, state}
     else
       moved_robot = Robot.move_to(robot, row: row, column: column)
@@ -221,7 +223,7 @@ defmodule AndyWorld.Playground do
       column not in Space.column_range(tiles) ->
         {:error, :invalid_column}
 
-      Space.occupied?(tile, robots) ->
+      Space.occupied?(tile, Map.values(robots)) ->
         {:error, :occupied}
 
       orientation not in -180..180 ->
