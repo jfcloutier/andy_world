@@ -99,10 +99,8 @@ defmodule AndyWorld.Space do
     step = @simulated_step
     delta_y = :math.cos(d2r(orientation)) * step
     delta_x = :math.sin(d2r(orientation)) * step
-    # Logger.warn("delta_x=#{delta_x} delta_y=#{delta_y}")
     new_x = x + delta_x
     new_y = y + delta_y
-    # Logger.warn("new_x=#{new_x} new_y=#{new_y}")
 
     # points to a different tile yet?
     if floor(new_x) != floor(x) or floor(new_y) != floor(y) do
@@ -231,18 +229,12 @@ defmodule AndyWorld.Space do
        ) do
     step = @simulated_step
     distance_x = target_column + 0.5 - x
-    Logger.info("distance_x=#{distance_x}")
     distance_y = max(target_row + 0.5 - y, 0.0000000000001)
-    Logger.info("distance_y=#{distance_y}")
     angle_r = :math.atan(distance_x / distance_y)
-    Logger.info("angle_r=#{angle_r} => #{r2d(angle_r)} degrees")
     delta_y = :math.cos(angle_r) * step
-    Logger.info("delta_y=#{delta_y}")
     delta_x = :math.sin(angle_r) * step
-    Logger.info("delta_x=#{delta_x}")
     new_x = x + delta_x
     new_y = y + delta_y
-    Logger.info("location={#{new_x},#{new_y}}")
 
     if floor(new_y) == target_row and floor(new_x) == target_column do
       true
