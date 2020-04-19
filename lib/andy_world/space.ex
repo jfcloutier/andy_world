@@ -138,6 +138,7 @@ defmodule AndyWorld.Space do
         other_robots,
         fn other_robot ->
           {:ok, tile} = get_tile(tiles, other_robot)
+
           # Logger.debug("#{other_robot.name} on row #{tile.row} column #{tile.column}")
 
           visible? =
@@ -167,15 +168,10 @@ defmodule AndyWorld.Space do
     end
   end
 
-  @spec direction_to_other_robot(
-          atom | %{aim: integer},
-          atom | %{orientation: integer, x: number, y: number},
-          atom | %{x: number, y: number}
-        ) :: float
   def direction_to_other_robot(sensor, robot, other_robot) do
     sensor_angle = Sensor.absolute_orientation(sensor.aim, robot.orientation)
 
-    angle_perceived(robot.x, robot.y, sensor_angle, other_robot.x, other_robot.y)
+    angle_perceived(Robot.locate(robot), sensor_angle, Robot.locate(other_robot))
   end
 
   def distance_to_other_robot(robot, other_robot) do
@@ -206,16 +202,33 @@ defmodule AndyWorld.Space do
 
   # For now assume a single beacon channel
   def find_beacon_tile(tiles, _channel) do
-    Enum.find(tiles, &(&1.beacon_orientation != nil))
+    Enum.find(List.flatten(tiles), &(&1.beacon_orientation != nil))
   end
 
-  def angle_perceived(from_x, from_y, sensor_angle, target_x, target_y) do
-    angle =
-      ((target_y - from_y) / (target_x - from_x))
-      |> :math.atan()
-      |> r2d()
+  def angle_perceived({from_x, from_y}, sensor_angle, {target_x, target_y}) do
+    distance_y = target_y - from_y
+    distance_x = target_x - from_x
 
-    angle - sensor_angle
+    if distance_x == 0 and distance_y == 0 do
+      0
+    else
+      angle_r = :math.atan(abs(distance_y) / max(abs(distance_x), 0.00000001))
+      abs_angle = r2d(angle_r) |> round()
+      sign_x = sign(distance_x)
+      sign_y = sign(distance_y)
+      Logger.info("ABS_ANGLE = #{inspect(abs_angle)}")
+
+      angle =
+        cond do
+          sign_x == 1 and sign_y == -1 -> abs_angle + 90
+          sign_x == -1 and sign_y == 1 -> abs_angle + 270
+          sign_x == -1 and sign_y == -1 -> abs_angle + 180
+          true -> abs_angle
+        end
+
+      Logger.info("ANGLE = #{angle}")
+      normalize_orientation(angle - sensor_angle)
+    end
   end
 
   def d2r(d) do

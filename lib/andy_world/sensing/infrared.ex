@@ -4,7 +4,7 @@ defmodule AndyWorld.Sensing.Infrared do
   Assumes at most one beacon set to some channel
   """
 
-  alias AndyWorld.{Sensing, Space, Tile, Sensing.Sensor}
+  alias AndyWorld.{Sensing, Space, Tile, Sensing.Sensor, Robot}
 
   @behaviour Sensing
 
@@ -14,7 +14,7 @@ defmodule AndyWorld.Sensing.Infrared do
       nil ->
         0
 
-      %Tile{row: beacon_row, column: beacon_column} = beacon_tile ->
+      %Tile{} = beacon_tile ->
         if beacon_in_front?(
              beacon_tile,
              robot
@@ -23,11 +23,9 @@ defmodule AndyWorld.Sensing.Infrared do
 
           angle_perceived =
             Space.angle_perceived(
-              robot.x,
-              robot.y,
+              Robot.locate(robot),
               sensor_angle,
-              beacon_row + 0.5,
-              beacon_column + 0.5
+              Tile.location(beacon_tile)
             )
 
           if abs(angle_perceived) <= 90, do: round(25 * angle_perceived / 90), else: 0
@@ -49,29 +47,28 @@ defmodule AndyWorld.Sensing.Infrared do
       nil ->
         -128
 
-      %Tile{row: beacon_row, column: beacon_column} = beacon_tile ->
+      %Tile{} = beacon_tile ->
         if beacon_in_front?(
              beacon_tile,
              robot
            ) and Space.tile_visible_to?(beacon_tile, robot, tiles) do
           sensor_angle = Sensor.absolute_orientation(infrared_sensor.aim, robot.orientation)
+          {beacon_x, beacon_y} = beacon_location = Tile.location(beacon_tile)
 
           angle_perceived =
             Space.angle_perceived(
-              robot.x,
-              robot.y,
+              Robot.locate(robot),
               sensor_angle,
-              beacon_row + 0.5,
-              beacon_column + 0.5
+              beacon_location
             )
 
           if abs(angle_perceived) <= 90 do
             delta_y_squared =
-              (beacon_row + 0.5 - robot.y)
+              (beacon_y - robot.y)
               |> :math.pow(2)
 
             delta_x_squared =
-              (beacon_column + 0.5 - robot.x)
+              (beacon_x - robot.x)
               |> :math.pow(2)
 
             distance = :math.sqrt(delta_y_squared + delta_x_squared)

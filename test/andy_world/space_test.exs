@@ -158,6 +158,18 @@ defmodule AndyWorld.Space.Test do
                )
     end
 
+    test "Angle perceived" do
+      assert 0 == Space.angle_perceived({0, 0}, 0, {0, 0})
+      assert 45 == Space.angle_perceived({0, 0}, 0, {100, 100})
+      assert 0 == Space.angle_perceived({0, 0}, 45, {100, 100})
+      assert 90 == Space.angle_perceived({0, 0}, 0, {0, 100})
+      assert 180 = Space.angle_perceived({100, 100}, 0, {100, 0})
+      assert -135 = Space.angle_perceived({100, 100}, 0, {0, 0})
+      assert 135 = Space.angle_perceived({0, 100}, 0, {100, 0})
+    end
+  end
+
+  describe "Social distancing" do
     test "Closest visible robot", %{tiles: tiles} do
       {:ok, andy} =
         AndyWorld.place_robot(
@@ -198,6 +210,53 @@ defmodule AndyWorld.Space.Test do
       {:ok, _karl} = AndyWorld.move_robot(name: :karl, row: 8, column: 15)
       {:ok, closest_robot} = Space.closest_robot_visible_to(andy, tiles)
       assert closest_robot.name == :rodney
+    end
+
+    test "distance to other robot" do
+      {:ok, andy} =
+        AndyWorld.place_robot(
+          name: :andy,
+          node: node(),
+          row: 6,
+          column: 9,
+          orientation: 0,
+          sensor_data: %{},
+          motor_data: %{}
+        )
+
+      {:ok, karl} =
+        AndyWorld.place_robot(
+          name: :karl,
+          node: node(),
+          row: 1,
+          column: 1,
+          orientation: 0,
+          sensor_data: %{},
+          motor_data: %{}
+        )
+
+      {:ok, rodney} =
+        AndyWorld.place_robot(
+          name: :rodney,
+          node: node(),
+          row: 18,
+          column: 18,
+          orientation: 0,
+          sensor_data: %{},
+          motor_data: %{}
+        )
+
+      assert round(Space.distance_to_other_robot(andy, karl)) == 94
+      assert round(Space.distance_to_other_robot(andy, rodney)) == 150
+      assert round(Space.distance_to_other_robot(karl, rodney)) == 240
+    end
+  end
+
+  describe "Where's the beacon?" do
+    test "Find the beacon", %{tiles: tiles} do
+      tile = Space.find_beacon_tile(tiles, 1)
+      assert tile.row == 17
+      assert tile.column == 9
     end
   end
 end

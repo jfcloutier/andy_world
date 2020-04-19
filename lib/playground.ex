@@ -1,5 +1,9 @@
 defmodule AndyWorld.Playground do
-  @moduledoc "Where the robots play"
+  @moduledoc """
+  Where the robots play.
+  A square grid of equilateral tiles arranged in rows, with row 0 "down" and column 0 "left".any()
+  North is up at 270 degrees. East is right at 0 degrees.
+  """
 
   use GenServer
 
@@ -176,6 +180,7 @@ defmodule AndyWorld.Playground do
   end
 
   # Index = tile's cartesian coordinate
+  # A list of rows
   defp init_tiles() do
     tiles_data = Application.get_env(:andy_world, :playground_tiles)
     default_ambient = Application.get_env(:andy_world, :default_ambient)
