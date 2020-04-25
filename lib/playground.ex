@@ -52,11 +52,6 @@ defmodule AndyWorld.Playground do
     {:reply, Map.fetch(robots, robot_name), state}
   end
 
-  def handle_call({:robots_other_than, robot_name}, _from, %State{robots: robots} = state) do
-    other_robots = Map.delete(robots, robot_name) |> Map.values()
-    {:reply, {:ok, other_robots}, state}
-  end
-
   def handle_call(:clear_robots, _from, state) do
     {:reply, :ok, %State{state | robots: %{}}}
   end
@@ -159,17 +154,17 @@ defmodule AndyWorld.Playground do
 
   def handle_call({:actuated, robot_name, intent}, _from, %{robots: robots, tiles: tiles} = state) do
     robot = Map.fetch!(robots, robot_name)
-    updated_robot = Robot.actuate(robot, intent, tiles)
+    updated_robot = Robot.actuate(robot, intent, tiles, robots)
     {:reply, :ok, %State{state | robots: Map.put(robots, robot.name, updated_robot)}}
   end
 
   def handle_call(
-        {:read, robot_name, sensor_type, sense},
+        {:read, robot_name, sensor_id, sense},
         _from,
         %State{robots: robots, tiles: tiles} = state
       ) do
     robot = Map.fetch!(robots, robot_name)
-    value = Robot.sense(robot, sensor_type, sense, tiles)
+    value = Robot.sense(robot, sensor_id, sense, tiles, Map.values(robots))
     {:reply, {:ok, value}, state}
   end
 

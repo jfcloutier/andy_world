@@ -9,7 +9,7 @@ defmodule AndyWorld.Sensing.Infrared do
   @behaviour Sensing
 
   # -25 to 25 (-90 degrees to 90 degrees, 0 if undetected)
-  def sensed(robot, infrared_sensor, {:beacon_heading, channel}, _robot_tile, tiles) do
+  def sense(robot, infrared_sensor, {:beacon_heading, channel}, _robot_tile, tiles, robots) do
     case Space.find_beacon_tile(tiles, channel) do
       nil ->
         0
@@ -18,7 +18,7 @@ defmodule AndyWorld.Sensing.Infrared do
         if beacon_in_front?(
              beacon_tile,
              robot
-           ) and Space.tile_visible_to?(beacon_tile, robot, tiles) do
+           ) and Space.tile_visible_to?(beacon_tile, robot, tiles, robots) do
           sensor_angle = Sensor.absolute_orientation(infrared_sensor.aim, robot.orientation)
 
           angle_perceived =
@@ -36,12 +36,13 @@ defmodule AndyWorld.Sensing.Infrared do
   end
 
   # 0 to 100 (percent, where 100% = 200cm), or -128 if undetected
-  def sensed(
+  def sense(
         robot,
         infrared_sensor,
         {:beacon_distance, channel},
         _robot_tile,
-        tiles
+        tiles,
+        robots
       ) do
     case Space.find_beacon_tile(tiles, channel) do
       nil ->
@@ -51,7 +52,7 @@ defmodule AndyWorld.Sensing.Infrared do
         if beacon_in_front?(
              beacon_tile,
              robot
-           ) and Space.tile_visible_to?(beacon_tile, robot, tiles) do
+           ) and Space.tile_visible_to?(beacon_tile, robot, tiles, robots) do
           sensor_angle = Sensor.absolute_orientation(infrared_sensor.aim, robot.orientation)
           {beacon_x, beacon_y} = beacon_location = Tile.location(beacon_tile)
 

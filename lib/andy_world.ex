@@ -18,11 +18,6 @@ defmodule AndyWorld do
   def robot(robot_name) do
     GenServer.call(playground(), {:robot, robot_name})
   end
-
-  def robots_other_than(robot_name) do
-    GenServer.call(playground(), {:robots_other_than, robot_name})
-  end
-
   def place_robot(
         name: robot_name,
         node: node,
@@ -55,5 +50,9 @@ defmodule AndyWorld do
 
   def clear_robots() do
     GenServer.call(playground(), :clear_robots)
+  end
+
+  def read(name: robot_name, sensor_id: sensor_id, sense: sense) do
+    GenServer.call(playground(), {:read, robot_name, sensor_id, sense})
   end
 end

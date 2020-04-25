@@ -7,12 +7,6 @@ defmodule AndyWorld.Space do
   require Logger
 
   @simulated_step 0.2
-
-  def occupied?(%Tile{} = tile) do
-    {:ok, robots} = AndyWorld.robots()
-    occupied?(tile, robots)
-  end
-
   def occupied?(%Tile{row: row, column: column} = tile, robots) do
     Tile.has_obstacle?(tile) or
       Enum.any?(robots, &Robot.occupies?(&1, row: row, column: column))
@@ -20,9 +14,10 @@ defmodule AndyWorld.Space do
 
   def unavailable_to?(
         %Tile{row: row, column: column} = tile,
-        %Robot{} = robot
+        %Robot{} = robot,
+        robots
       ) do
-    not Robot.occupies?(robot, row: row, column: column) and occupied?(tile)
+    not Robot.occupies?(robot, row: row, column: column) and occupied?(tile, robots)
   end
 
   def get_tile(tiles, row: row, column: column) do
@@ -85,16 +80,16 @@ defmodule AndyWorld.Space do
     get_tile(tiles, row: new_row, column: new_column)
   end
 
-  def closest_obstructed(tiles, %Robot{x: x, y: y}, orientation) do
-    closest_obstructed(tiles, {x, y}, orientation)
+  def closest_obstructed(tiles, %Robot{x: x, y: y}, orientation, robots) do
+    closest_obstructed(tiles, {x, y}, orientation, robots)
   end
 
-  def closest_obstructed(tiles, %Tile{row: row, column: column}, orientation) do
-    closest_obstructed(tiles, {column, row}, orientation)
+  def closest_obstructed(tiles, %Tile{row: row, column: column}, orientation, robots) do
+    closest_obstructed(tiles, {column, row}, orientation, robots)
   end
 
   @doc "Find the {x,y} of the closest point of obstruction"
-  def closest_obstructed(tiles, {x, y}, orientation) when is_number(x) and is_number(y) do
+  def closest_obstructed(tiles, {x, y}, orientation, robots) when is_number(x) and is_number(y) do
     # look fifth of a tile further
     step = @simulated_step
     delta_y = :math.cos(d2r(orientation)) * step
@@ -106,17 +101,17 @@ defmodule AndyWorld.Space do
     if floor(new_x) != floor(x) or floor(new_y) != floor(y) do
       case get_tile(tiles, {new_x, new_y}) do
         {:ok, tile} ->
-          if occupied?(tile) do
+          if occupied?(tile, robots) do
             {floor(x), floor(y)}
           else
-            closest_obstructed(tiles, {new_x, new_y}, orientation)
+            closest_obstructed(tiles, {new_x, new_y}, orientation, robots)
           end
 
         {:error, _reason} ->
           {floor(x), floor(y)}
       end
     else
-      closest_obstructed(tiles, {new_x, new_y}, orientation)
+      closest_obstructed(tiles, {new_x, new_y}, orientation, robots)
     end
   end
 
@@ -124,14 +119,15 @@ defmodule AndyWorld.Space do
   def tile_visible_to?(
         %Tile{} = target_tile,
         %Robot{x: x, y: y} = robot,
-        tiles
+        tiles,
+        robots
       ) do
-    tile_visible_from?(target_tile, {x, y}, tiles, robot)
+    tile_visible_from?(target_tile, {x, y}, tiles, robots, robot)
   end
 
-  def closest_robot_visible_to(%Robot{x: x, y: y} = robot, tiles) do
+  def closest_robot_visible_to(%Robot{x: x, y: y, name: robot_name} = robot, tiles, robots) do
     # Logger.debug("Looking for robot closest to #{robot.name} located at {#{x},#{y}}")
-    {:ok, other_robots} = AndyWorld.robots_other_than(robot.name)
+    other_robots = Enum.reject(robots, &(&1.name == robot_name))
 
     visible_other_robots =
       Enum.filter(
@@ -139,13 +135,14 @@ defmodule AndyWorld.Space do
         fn other_robot ->
           {:ok, tile} = get_tile(tiles, other_robot)
 
-          # Logger.debug("#{other_robot.name} on row #{tile.row} column #{tile.column}")
+         # Logger.debug("#{other_robot.name} on row #{tile.row} column #{tile.column}")
 
           visible? =
             tile_visible_from?(
               tile,
               {x, y},
               tiles,
+              robots,
               robot
             )
 
@@ -216,7 +213,6 @@ defmodule AndyWorld.Space do
       abs_angle = r2d(angle_r) |> round()
       sign_x = sign(distance_x)
       sign_y = sign(distance_y)
-      Logger.info("ABS_ANGLE = #{inspect(abs_angle)}")
 
       angle =
         cond do
@@ -226,7 +222,6 @@ defmodule AndyWorld.Space do
           true -> abs_angle
         end
 
-      Logger.info("ANGLE = #{angle}")
       normalize_orientation(angle - sensor_angle)
     end
   end
@@ -245,6 +240,7 @@ defmodule AndyWorld.Space do
          %Tile{row: target_row, column: target_column} = target_tile,
          {x, y},
          tiles,
+         robots,
          # this robot is not an obstacle
          %Robot{} = robot
        ) do
@@ -266,13 +262,14 @@ defmodule AndyWorld.Space do
     angle_r = :math.atan(abs(distance_y / distance_x))
     signs = {sign(distance_x), sign(distance_y)}
     # Logger.debug("angle_r=#{angle_r} signs=#{inspect(signs)}")
-    tile_visible_from?(target_tile, {x, y}, tiles, robot, angle_r, signs)
+    tile_visible_from?(target_tile, {x, y}, tiles, robots, robot, angle_r, signs)
   end
 
   defp tile_visible_from?(
          %Tile{row: target_row, column: target_column} = target_tile,
          {x, y},
          tiles,
+         robots,
          # this robot is not an obstacle
          %Robot{} = robot,
          angle_r,
@@ -294,7 +291,7 @@ defmodule AndyWorld.Space do
     else
       case get_tile(tiles, {new_x, new_y}) do
         {:ok, tile} ->
-          if unavailable_to?(tile, robot) do
+          if unavailable_to?(tile, robot, robots) do
             Logger.info(
               "Obstacle at row #{tile.row} column #{tile.column} hides target tile at row #{
                 target_tile.row
@@ -303,7 +300,7 @@ defmodule AndyWorld.Space do
 
             false
           else
-            tile_visible_from?(target_tile, {new_x, new_y}, tiles, robot, angle_r, signs)
+            tile_visible_from?(target_tile, {new_x, new_y}, tiles, robots, robot, angle_r, signs)
           end
 
         {:error, _reason} ->

@@ -53,11 +53,12 @@ defmodule AndyWorld.Playground.Test do
            motor_data: %{}}
         )
 
+      {:ok, robots} = AndyWorld.robots()
       assert andy.name == :andy
       assert andy.x == 6.5
       assert andy.y == 5.5
       {:ok, tile} = Space.get_tile(tiles, {andy.x, andy.y})
-      assert true == Space.occupied?(tile)
+      assert true == Space.occupied?(tile, robots)
     end
 
     test "Moving a robot" do

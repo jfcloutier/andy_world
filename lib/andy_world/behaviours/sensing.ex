@@ -3,11 +3,12 @@ defmodule AndyWorld.Sensing do
 
   alias AndyWorld.{Sensing.Sensor, Tile, Robot}
 
-  @callback sensed(
+  @callback sense(
               robot :: %Robot{},
               sensor :: %Sensor{},
-              sense :: atom,
+              sense :: atom | {atom, any},
               tile :: %Tile{},
-              tiles :: [%Tile{}]
+              tiles :: [%Tile{}],
+              robots :: map
             ) :: any
 end

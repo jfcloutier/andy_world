@@ -17,7 +17,7 @@ defmodule AndyWorld.Robot do
             orientation: 0,
             x: 0.0,
             y: 0.0,
-            sensors: [],
+            sensors: %{},
             motors: %{},
             events: []
 
@@ -30,7 +30,7 @@ defmodule AndyWorld.Robot do
         row: row,
         column: column
       ) do
-    sensors = Enum.map(sensors_data, &Sensor.from(&1))
+    sensors = Enum.map(sensors_data, &{&1.port, Sensor.from(&1)}) |> Enum.into(%{})
     motors = Enum.map(motors_data, &{&1.port, Motor.from(&1)}) |> Enum.into(%{})
 
     %Robot{
@@ -65,9 +65,10 @@ defmodule AndyWorld.Robot do
   def actuate(
         %Robot{motors: motors} = robot,
         %{kind: :locomotion} = _intent,
-        tiles
+        tiles,
+        robots
       ) do
-    updated_robot = run_motors(robot, tiles)
+    updated_robot = run_motors(robot, tiles, robots)
     reset_motors = Enum.map(motors, &Motor.reset_controls(&1))
     %Robot{updated_robot | motors: reset_motors}
   end
@@ -77,26 +78,23 @@ defmodule AndyWorld.Robot do
     robot
   end
 
-  def find_sensor(%Robot{sensors: sensors}, type) do
-    Enum.find(sensors, &Sensor.has_type?(&1, type))
-  end
-
-  def sense(robot, sensor_type, sense, tiles) do
-    case find_sensor(robot, sensor_type) do
+  def sense(%Robot{sensors: sensors}= robot, sensor_port, sense, tiles, robots) do
+    case Map.get(sensors, sensor_port) do
       nil ->
-        Logger.warn("Robot #{robot.name} has no sensor of type #{inspect(sensor_type)}")
+        Logger.warn("Robot #{robot.name} has no sensor with id #{inspect(sensor_port)}")
         nil
 
       sensor ->
         {x, y} = locate(robot)
         {:ok, tile} = Space.get_tile(tiles, {x, y})
 
-        apply(Sensor.module_for(sensor_type), :sense, [
+        apply(Sensor.module_for(sensor.type), :sense, [
           robot,
           sensor,
           sense,
           tile,
-          tiles
+          tiles,
+          robots
         ])
     end
   end
@@ -109,7 +107,8 @@ defmodule AndyWorld.Robot do
 
   defp run_motors(
          %Robot{motors: motors} = robot,
-         tiles
+         tiles,
+         robots
        ) do
     durations = Enum.map(motors, &Motor.run_duration(&1))
     tick_duration = durations |> Enum.min() |> min(@largest_tick_duration)
@@ -134,7 +133,8 @@ defmodule AndyWorld.Robot do
             acc,
             degrees_per_rotation,
             tiles_per_rotation,
-            tiles
+            tiles,
+            robots
           )
         end
       )
@@ -149,7 +149,8 @@ defmodule AndyWorld.Robot do
          %{orientation: orientation, x: x, y: y},
          degrees_per_rotation,
          tiles_per_rotation,
-         tiles
+         tiles,
+         robots
        ) do
     # negative if backward-moving rotations
     left_forward_rotations =
@@ -174,7 +175,8 @@ defmodule AndyWorld.Robot do
         left_forward_rotations,
         right_forward_rotations,
         tiles_per_rotation,
-        tiles
+        tiles,
+        robots
       )
 
     %{orientation: angle, x: new_x, y: new_y}
@@ -198,7 +200,8 @@ defmodule AndyWorld.Robot do
          left_forward_rotations,
          right_forward_rotations,
          tiles_per_rotation,
-         tiles
+         tiles,
+         robots
        ) do
     rotations = (left_forward_rotations + right_forward_rotations) |> div(2)
     distance = rotations * tiles_per_rotation
@@ -208,7 +211,7 @@ defmodule AndyWorld.Robot do
     new_y = y + delta_y
     {:ok, tile} = Space.get_tile(tiles, {new_x, new_y})
 
-    if Space.occupied?(tile) do
+    if Space.occupied?(tile, robots) do
       {x, y}
     else
       {new_x, new_y}

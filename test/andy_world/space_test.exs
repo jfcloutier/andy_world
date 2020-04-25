@@ -28,33 +28,34 @@ defmodule AndyWorld.Space.Test do
           motor_data: %{}
         )
 
-      assert {19, 5} == Space.closest_obstructed(tiles, robot, 90)
+      {:ok, robots} = AndyWorld.robots()
+      assert {19, 5} == Space.closest_obstructed(tiles, robot, 90, robots)
 
       {:ok, robot} = AndyWorld.move_robot(name: :andy, row: 2, column: 9)
 
-      assert {9, 16} == Space.closest_obstructed(tiles, robot, 0)
+      assert {9, 16} == Space.closest_obstructed(tiles, robot, 0, robots)
 
-      {x, y} = Space.closest_obstructed(tiles, robot, 45)
+      {x, y} = Space.closest_obstructed(tiles, robot, 45, robots)
       # Logger.info("Closest at 45 degrees is #{inspect({x, y})}")
       assert x > 9
       assert y > 2
 
-      {x, y} = Space.closest_obstructed(tiles, robot, 180)
+      {x, y} = Space.closest_obstructed(tiles, robot, 180, robots)
       # Logger.info("Closest at 180 degrees is #{inspect({x, y})}")
       assert x == 9
       assert y < 2
 
-      {x, y} = Space.closest_obstructed(tiles, robot, 270)
+      {x, y} = Space.closest_obstructed(tiles, robot, 270, robots)
       # Logger.info("Closest at 270 degrees is #{inspect({x, y})}")
       assert x < 9
       assert y == 2
 
-      {x, y} = Space.closest_obstructed(tiles, robot, -90)
+      {x, y} = Space.closest_obstructed(tiles, robot, -90, robots)
       # Logger.info("Closest at 270 degrees is #{inspect({x, y})}")
       assert x < 9
       assert y == 2
 
-      {x, y} = Space.closest_obstructed(tiles, robot, -45)
+      {x, y} = Space.closest_obstructed(tiles, robot, -45, robots)
       # Logger.info("Closest at -45 degrees is #{inspect({x, y})}")
       assert x < 9
       assert y > 2
@@ -104,12 +105,14 @@ defmodule AndyWorld.Space.Test do
         )
 
       {:ok, tile} = Space.get_tile(tiles, row: 6, column: 11)
+      {:ok, robots} = AndyWorld.robots()
 
       assert true ==
                Space.tile_visible_to?(
                  tile,
                  robot,
-                 tiles
+                 tiles,
+                 robots
                )
 
       {:ok, tile} = Space.get_tile(tiles, row: 6, column: 15)
@@ -118,7 +121,8 @@ defmodule AndyWorld.Space.Test do
                Space.tile_visible_to?(
                  tile,
                  robot,
-                 tiles
+                 tiles,
+                 robots
                )
 
       {:ok, tile} = Space.get_tile(tiles, row: 10, column: 9)
@@ -127,7 +131,8 @@ defmodule AndyWorld.Space.Test do
                Space.tile_visible_to?(
                  tile,
                  robot,
-                 tiles
+                 tiles,
+                 robots
                )
 
       {:ok, tile} = Space.get_tile(tiles, row: 6, column: 1)
@@ -136,7 +141,8 @@ defmodule AndyWorld.Space.Test do
                Space.tile_visible_to?(
                  tile,
                  robot,
-                 tiles
+                 tiles,
+                 robots
                )
 
       {:ok, tile} = Space.get_tile(tiles, row: 6, column: 2)
@@ -145,7 +151,8 @@ defmodule AndyWorld.Space.Test do
                Space.tile_visible_to?(
                  tile,
                  robot,
-                 tiles
+                 tiles,
+                 robots
                )
 
       {:ok, tile} = Space.get_tile(tiles, row: 15, column: 15)
@@ -154,7 +161,8 @@ defmodule AndyWorld.Space.Test do
                Space.tile_visible_to?(
                  tile,
                  robot,
-                 tiles
+                 tiles,
+                 robots
                )
     end
 
@@ -166,6 +174,7 @@ defmodule AndyWorld.Space.Test do
       assert 180 = Space.angle_perceived({100, 100}, 0, {100, 0})
       assert -135 = Space.angle_perceived({100, 100}, 0, {0, 0})
       assert 135 = Space.angle_perceived({0, 100}, 0, {100, 0})
+      assert -45 = Space.angle_perceived({100, 0}, 0, {0, 100})
     end
   end
 
@@ -204,11 +213,13 @@ defmodule AndyWorld.Space.Test do
           motor_data: %{}
         )
 
-      {:ok, closest_robot} = Space.closest_robot_visible_to(andy, tiles)
+      {:ok, robots} = AndyWorld.robots()
+      {:ok, closest_robot} = Space.closest_robot_visible_to(andy, tiles, robots)
       assert closest_robot.name == :karl
 
       {:ok, _karl} = AndyWorld.move_robot(name: :karl, row: 8, column: 15)
-      {:ok, closest_robot} = Space.closest_robot_visible_to(andy, tiles)
+      {:ok, robots} = AndyWorld.robots()
+      {:ok, closest_robot} = Space.closest_robot_visible_to(andy, tiles, robots)
       assert closest_robot.name == :rodney
     end
 
