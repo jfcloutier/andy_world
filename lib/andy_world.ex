@@ -8,16 +8,20 @@ defmodule AndyWorld do
   end
 
   def tiles() do
-    GenServer.call(playground(), :tiles)
+    {:ok, tiles} = GenServer.call(playground(), :tiles)
+    tiles
   end
 
   def robots() do
-    GenServer.call(playground(), :robots)
+    {:ok, robots} = GenServer.call(playground(), :robots)
+    robots
   end
 
   def robot(robot_name) do
-    GenServer.call(playground(), {:robot, robot_name})
+    {:ok, robot} = GenServer.call(playground(), {:robot, robot_name})
+    robot
   end
+
   def place_robot(
         name: robot_name,
         node: node,
@@ -27,25 +31,34 @@ defmodule AndyWorld do
         sensor_data: sensor_data,
         motor_data: motor_data
       ) do
-    GenServer.call(
-      playground(),
-      {:place_robot,
-       name: robot_name,
-       node: node,
-       row: row,
-       column: column,
-       orientation: orientation,
-       sensor_data: sensor_data,
-       motor_data: motor_data}
-    )
+    {:ok, robot} =
+      GenServer.call(
+        playground(),
+        {:place_robot,
+         name: robot_name,
+         node: node,
+         row: row,
+         column: column,
+         orientation: orientation,
+         sensor_data: sensor_data,
+         motor_data: motor_data}
+      )
+
+    robot
   end
 
   def move_robot(name: robot_name, row: row, column: column) do
-    GenServer.call(playground(), {:move_robot, name: robot_name, row: row, column: column})
+    {:ok, robot} =
+      GenServer.call(playground(), {:move_robot, name: robot_name, row: row, column: column})
+
+    robot
   end
 
   def orient_robot(name: robot_name, orientation: orientation) do
-    GenServer.call(playground(), {:orient_robot, name: robot_name, orientation: orientation})
+    {:ok, robot} =
+      GenServer.call(playground(), {:orient_robot, name: robot_name, orientation: orientation})
+
+    robot
   end
 
   def clear_robots() do

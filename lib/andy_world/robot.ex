@@ -78,7 +78,7 @@ defmodule AndyWorld.Robot do
     robot
   end
 
-  def sense(%Robot{sensors: sensors}= robot, sensor_port, sense, tiles, robots) do
+  def sense(%Robot{sensors: sensors} = robot, sensor_port, sense, tiles, robots) do
     case Map.get(sensors, sensor_port) do
       nil ->
         Logger.warn("Robot #{robot.name} has no sensor with id #{inspect(sensor_port)}")

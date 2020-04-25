@@ -5,7 +5,7 @@ defmodule AndyWorld.Space.Test do
   require Logger
 
   setup_all do
-    {:ok, tiles} = AndyWorld.tiles()
+    tiles = AndyWorld.tiles()
     default_color = Application.get_env(:andy_world, :default_color)
     default_ambient = Application.get_env(:andy_world, :default_ambient)
     {:ok, %{tiles: tiles, tile_defaults: %{color: default_color, ambient: default_ambient}}}
@@ -17,7 +17,7 @@ defmodule AndyWorld.Space.Test do
 
   describe "Spatial awareness" do
     test "Closest obstructed", %{tiles: tiles} do
-      {:ok, robot} =
+      robot =
         AndyWorld.place_robot(
           name: :andy,
           node: node(),
@@ -28,10 +28,10 @@ defmodule AndyWorld.Space.Test do
           motor_data: %{}
         )
 
-      {:ok, robots} = AndyWorld.robots()
+      robots = AndyWorld.robots()
       assert {19, 5} == Space.closest_obstructed(tiles, robot, 90, robots)
 
-      {:ok, robot} = AndyWorld.move_robot(name: :andy, row: 2, column: 9)
+      robot = AndyWorld.move_robot(name: :andy, row: 2, column: 9)
 
       assert {9, 16} == Space.closest_obstructed(tiles, robot, 0, robots)
 
@@ -93,7 +93,7 @@ defmodule AndyWorld.Space.Test do
     end
 
     test "Tile visibility", %{tiles: tiles} do
-      {:ok, robot} =
+      robot =
         AndyWorld.place_robot(
           name: :andy,
           node: node(),
@@ -105,7 +105,7 @@ defmodule AndyWorld.Space.Test do
         )
 
       {:ok, tile} = Space.get_tile(tiles, row: 6, column: 11)
-      {:ok, robots} = AndyWorld.robots()
+      robots = AndyWorld.robots()
 
       assert true ==
                Space.tile_visible_to?(
@@ -180,7 +180,7 @@ defmodule AndyWorld.Space.Test do
 
   describe "Social distancing" do
     test "Closest visible robot", %{tiles: tiles} do
-      {:ok, andy} =
+      andy =
         AndyWorld.place_robot(
           name: :andy,
           node: node(),
@@ -191,40 +191,38 @@ defmodule AndyWorld.Space.Test do
           motor_data: %{}
         )
 
-      {:ok, _karl} =
-        AndyWorld.place_robot(
-          name: :karl,
-          node: node(),
-          row: 1,
-          column: 1,
-          orientation: 0,
-          sensor_data: %{},
-          motor_data: %{}
-        )
+      AndyWorld.place_robot(
+        name: :karl,
+        node: node(),
+        row: 1,
+        column: 1,
+        orientation: 0,
+        sensor_data: %{},
+        motor_data: %{}
+      )
 
-      {:ok, _rodney} =
-        AndyWorld.place_robot(
-          name: :rodney,
-          node: node(),
-          row: 18,
-          column: 18,
-          orientation: 0,
-          sensor_data: %{},
-          motor_data: %{}
-        )
+      AndyWorld.place_robot(
+        name: :rodney,
+        node: node(),
+        row: 18,
+        column: 18,
+        orientation: 0,
+        sensor_data: %{},
+        motor_data: %{}
+      )
 
-      {:ok, robots} = AndyWorld.robots()
+      robots = AndyWorld.robots()
       {:ok, closest_robot} = Space.closest_robot_visible_to(andy, tiles, robots)
       assert closest_robot.name == :karl
 
-      {:ok, _karl} = AndyWorld.move_robot(name: :karl, row: 8, column: 15)
-      {:ok, robots} = AndyWorld.robots()
+      AndyWorld.move_robot(name: :karl, row: 8, column: 15)
+      robots = AndyWorld.robots()
       {:ok, closest_robot} = Space.closest_robot_visible_to(andy, tiles, robots)
       assert closest_robot.name == :rodney
     end
 
     test "distance to other robot" do
-      {:ok, andy} =
+      andy =
         AndyWorld.place_robot(
           name: :andy,
           node: node(),
@@ -235,7 +233,7 @@ defmodule AndyWorld.Space.Test do
           motor_data: %{}
         )
 
-      {:ok, karl} =
+      karl =
         AndyWorld.place_robot(
           name: :karl,
           node: node(),
@@ -246,7 +244,7 @@ defmodule AndyWorld.Space.Test do
           motor_data: %{}
         )
 
-      {:ok, rodney} =
+      rodney =
         AndyWorld.place_robot(
           name: :rodney,
           node: node(),

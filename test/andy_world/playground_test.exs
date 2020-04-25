@@ -5,7 +5,7 @@ defmodule AndyWorld.Playground.Test do
   require Logger
 
   setup_all do
-    {:ok, tiles} = AndyWorld.tiles()
+    tiles = AndyWorld.tiles()
     default_color = Application.get_env(:andy_world, :default_color)
     default_ambient = Application.get_env(:andy_world, :default_ambient)
     {:ok, %{tiles: tiles, tile_defaults: %{color: default_color, ambient: default_ambient}}}
@@ -32,7 +32,7 @@ defmodule AndyWorld.Playground.Test do
 
     test "Tile occupancy", %{tiles: tiles} do
       {:ok, tile} = Space.get_tile(tiles, row: 5, column: 6)
-      {:ok, robots} = AndyWorld.robots()
+      robots = AndyWorld.robots()
       assert false == Tile.has_obstacle?(tile)
       assert false == Space.occupied?(tile, robots)
     end
@@ -53,7 +53,7 @@ defmodule AndyWorld.Playground.Test do
            motor_data: %{}}
         )
 
-      {:ok, robots} = AndyWorld.robots()
+      robots = AndyWorld.robots()
       assert andy.name == :andy
       assert andy.x == 6.5
       assert andy.y == 5.5
@@ -62,28 +62,22 @@ defmodule AndyWorld.Playground.Test do
     end
 
     test "Moving a robot" do
-      {:ok, robot} =
-        GenServer.call(
-          AndyWorld.playground(),
-          {:place_robot,
-           name: :andy,
-           node: node(),
-           row: 5,
-           column: 6,
-           orientation: 90,
-           sensor_data: %{},
-           motor_data: %{}}
+      robot =
+        AndyWorld.place_robot(
+          name: :andy,
+          node: node(),
+          row: 5,
+          column: 6,
+          orientation: 90,
+          sensor_data: %{},
+          motor_data: %{}
         )
 
       assert robot.name == :andy
 
-      {:ok, robot} =
-        GenServer.call(
-          AndyWorld.playground(),
-          {:move_robot, name: :andy, row: 0, column: 9}
-        )
+      robot = AndyWorld.move_robot(name: :andy, row: 0, column: 9)
 
-      {:ok, andy_robot} = AndyWorld.robot(:andy)
+      andy_robot = AndyWorld.robot(:andy)
       assert andy_robot == robot
       assert {9.5, 0.5} == Robot.locate(robot)
     end

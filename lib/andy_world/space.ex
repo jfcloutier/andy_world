@@ -135,7 +135,7 @@ defmodule AndyWorld.Space do
         fn other_robot ->
           {:ok, tile} = get_tile(tiles, other_robot)
 
-         # Logger.debug("#{other_robot.name} on row #{tile.row} column #{tile.column}")
+          # Logger.debug("#{other_robot.name} on row #{tile.row} column #{tile.column}")
 
           visible? =
             tile_visible_from?(
