@@ -36,7 +36,7 @@ defmodule AndyWorld.Tile do
   end
 
   def ground_color(%Tile{ground_color: ground_color}), do: ground_color
-  def ambient_light(%Tile{ground_color: ambient_light}), do: ambient_light
+  def ambient_light(%Tile{ambient_light: ambient_light}), do: ambient_light
 
   def reflected_light(_tile) do
     Logger.warn("Tile reflected light not implemented yet")

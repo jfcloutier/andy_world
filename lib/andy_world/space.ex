@@ -102,12 +102,13 @@ defmodule AndyWorld.Space do
       case get_tile(tiles, {new_x, new_y}) do
         {:ok, tile} ->
           if occupied?(tile, robots) do
-            {floor(x), floor(y)}
+            {floor(new_x), floor(new_y)}
           else
             closest_obstructed(tiles, {new_x, new_y}, orientation, robots)
           end
 
         {:error, _reason} ->
+          # A tile on the edge is considered obstructed for distance calculation
           {floor(x), floor(y)}
       end
     else

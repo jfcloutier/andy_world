@@ -20,7 +20,7 @@ defmodule AndyWorld.Sensing.Color.Test do
     AndyWorld.clear_robots()
   end
 
-  describe "Seeing" do
+  describe "Seeing color" do
     test "seeing floor", %{tile_defaults: %{color: default_color}} do
       AndyWorld.place_robot(
         name: :andy,
@@ -64,5 +64,50 @@ defmodule AndyWorld.Sensing.Color.Test do
 
       assert {:ok, :white} = AndyWorld.read(name: :andy, sensor_id: "in2", sense: :color)
     end
+  end
+
+  describe "Seeing ambient light" do
+    test "See default ambient light", %{tile_defaults: %{ambient: default_ambient}} do
+      AndyWorld.place_robot(
+        name: :andy,
+        node: node(),
+        row: 10,
+        column: 10,
+        orientation: 0,
+        sensor_data: [
+          %{
+            port: "in2",
+            type: :color,
+            position: :front,
+            height_cm: 2,
+            aim: 0
+          }
+        ],
+        motor_data: %{}
+      )
+      assert {:ok, ^default_ambient} = AndyWorld.read(name: :andy, sensor_id: "in2", sense: :ambient)
+    end
+
+    test "See the darknesst" do
+      AndyWorld.place_robot(
+        name: :andy,
+        node: node(),
+        row: 10,
+        column: 18,
+        orientation: 0,
+        sensor_data: [
+          %{
+            port: "in2",
+            type: :color,
+            position: :front,
+            height_cm: 2,
+            aim: 0
+          }
+        ],
+        motor_data: %{}
+      )
+      assert {:ok, 10} = AndyWorld.read(name: :andy, sensor_id: "in2", sense: :ambient)
+    end
+
   end
 end

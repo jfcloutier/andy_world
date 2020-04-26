@@ -28,34 +28,33 @@ defmodule AndyWorld.Space.Test do
           motor_data: %{}
         )
 
-      robots = AndyWorld.robots()
-      assert {19, 5} == Space.closest_obstructed(tiles, robot, 90, robots)
+      assert {19, 5} == Space.closest_obstructed(tiles, robot, 90, AndyWorld.robots())
 
       robot = AndyWorld.move_robot(name: :andy, row: 2, column: 9)
 
-      assert {9, 16} == Space.closest_obstructed(tiles, robot, 0, robots)
+      assert {9, 17} == Space.closest_obstructed(tiles, robot, 0, AndyWorld.robots())
 
-      {x, y} = Space.closest_obstructed(tiles, robot, 45, robots)
+      {x, y} = Space.closest_obstructed(tiles, robot, 45, AndyWorld.robots())
       # Logger.info("Closest at 45 degrees is #{inspect({x, y})}")
       assert x > 9
       assert y > 2
 
-      {x, y} = Space.closest_obstructed(tiles, robot, 180, robots)
+      {x, y} = Space.closest_obstructed(tiles, robot, 180, AndyWorld.robots())
       # Logger.info("Closest at 180 degrees is #{inspect({x, y})}")
       assert x == 9
       assert y < 2
 
-      {x, y} = Space.closest_obstructed(tiles, robot, 270, robots)
+      {x, y} = Space.closest_obstructed(tiles, robot, 270, AndyWorld.robots())
       # Logger.info("Closest at 270 degrees is #{inspect({x, y})}")
       assert x < 9
       assert y == 2
 
-      {x, y} = Space.closest_obstructed(tiles, robot, -90, robots)
+      {x, y} = Space.closest_obstructed(tiles, robot, -90, AndyWorld.robots())
       # Logger.info("Closest at 270 degrees is #{inspect({x, y})}")
       assert x < 9
       assert y == 2
 
-      {x, y} = Space.closest_obstructed(tiles, robot, -45, robots)
+      {x, y} = Space.closest_obstructed(tiles, robot, -45, AndyWorld.robots())
       # Logger.info("Closest at -45 degrees is #{inspect({x, y})}")
       assert x < 9
       assert y > 2
