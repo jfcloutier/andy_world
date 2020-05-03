@@ -14,7 +14,7 @@ config :andy_world,
   tile_side_cm: 10,
   tiles_per_rotation: 0.5,
   degrees_per_motor_rotation: 45,
-  tile_per_motor_rotation: 0.5,
+  tiles_per_motor_rotation: 0.5,
   # "<obstacle height * 10><beacon orientation><color><ambient * 10>|...."
   # _ = default, otherwise: obstacle in 0..9,  color in 0..7, ambient in 0..9, beacon in [N, S, E, W]
   playground_tiles: [

@@ -28,7 +28,7 @@ defmodule AndyWorld.Sensing.Infrared.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       assert {:ok, 0} = AndyWorld.read(name: :andy, sensor_id: "in3", sense: {:beacon_heading, 1})
@@ -72,7 +72,7 @@ defmodule AndyWorld.Sensing.Infrared.Test do
           aim: 0
         }
       ],
-      motor_data: %{}
+      motor_data: []
     )
 
     # 80 cms is 40% of 200cm

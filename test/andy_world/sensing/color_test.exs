@@ -37,7 +37,7 @@ defmodule AndyWorld.Sensing.Color.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       assert {:ok, ^default_color} = AndyWorld.read(name: :andy, sensor_id: "in2", sense: :color)
@@ -59,7 +59,7 @@ defmodule AndyWorld.Sensing.Color.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       assert {:ok, :white} = AndyWorld.read(name: :andy, sensor_id: "in2", sense: :color)
@@ -83,7 +83,7 @@ defmodule AndyWorld.Sensing.Color.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       assert {:ok, ^default_ambient} =
@@ -106,7 +106,7 @@ defmodule AndyWorld.Sensing.Color.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       assert {:ok, 10} = AndyWorld.read(name: :andy, sensor_id: "in2", sense: :ambient)

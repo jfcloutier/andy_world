@@ -63,18 +63,17 @@ defmodule AndyWorld.Robot do
   end
 
   def actuate(
-        %Robot{motors: motors} = robot,
+        %Robot{} = robot,
         %{kind: :locomotion} = _intent,
         tiles,
         robots
       ) do
-    updated_robot = run_motors(robot, tiles, robots)
-    reset_motors = Enum.map(motors, &Motor.reset_controls(&1))
-    %Robot{updated_robot | motors: reset_motors}
+    updated_robot = run_motors(robot, tiles, robots -- [robot])
+    reset_motors(updated_robot)
   end
 
   def actuate(robot, _intent, _tiles) do
-    # Do nothing for now
+    # Do nothing for now if not locomotion
     robot
   end
 
@@ -106,40 +105,47 @@ defmodule AndyWorld.Robot do
   # Private
 
   defp run_motors(
-         %Robot{motors: motors} = robot,
+         %Robot{} = robot,
          tiles,
-         robots
+         other_robots
        ) do
+    motors = Map.values(robot.motors)
     durations = Enum.map(motors, &Motor.run_duration(&1))
     tick_duration = durations |> Enum.min() |> min(@largest_tick_duration)
-    ticks = ceil(Enum.max(durations) / tick_duration)
-    degrees_per_rotation = Application.get_env(:andy_world, :degrees_per_motor_rotation)
-    tiles_per_rotation = Application.get_env(:andy_world, :tiles_per_motor_rotation)
 
-    position =
-      Enum.reduce(
-        0..ticks,
-        %{orientation: robot.orientation, x: robot.x, y: robot.y},
-        fn tick, acc ->
-          secs_elapsed = tick * tick_duration
-          running_motors = Enum.reject(motors, &(Motor.run_duration(&1) < secs_elapsed))
-          left_motors = Enum.filter(running_motors, &(&1.side == :left))
-          right_motors = Enum.filter(running_motors, &(&1.position == :right))
+    if tick_duration == 0 do
+      Logger.info("Duration of actuation is 0. Do nothing.")
+      robot
+    else
+      ticks = ceil(Enum.max(durations) / tick_duration)
+      degrees_per_rotation = Application.get_env(:andy_world, :degrees_per_motor_rotation)
+      tiles_per_rotation = Application.get_env(:andy_world, :tiles_per_motor_rotation)
 
-          activate_motors(
-            left_motors,
-            right_motors,
-            tick_duration,
-            acc,
-            degrees_per_rotation,
-            tiles_per_rotation,
-            tiles,
-            robots
-          )
-        end
-      )
+      position =
+        Enum.reduce(
+          0..ticks,
+          %{orientation: robot.orientation, x: robot.x, y: robot.y},
+          fn tick, acc ->
+            secs_elapsed = tick * tick_duration
+            running_motors = Enum.reject(motors, &(Motor.run_duration(&1) < secs_elapsed))
+            left_motors = Enum.filter(running_motors, &(&1.side == :left))
+            right_motors = Enum.filter(running_motors, &(&1.side == :right))
 
-    %Robot{robot | orientation: position.orientation, x: position.x, y: position.y}
+            activate_motors(
+              left_motors,
+              right_motors,
+              tick_duration,
+              acc,
+              degrees_per_rotation,
+              tiles_per_rotation,
+              tiles,
+              other_robots
+            )
+          end
+        )
+
+      %Robot{robot | orientation: position.orientation, x: position.x, y: position.y}
+    end
   end
 
   defp activate_motors(
@@ -150,7 +156,7 @@ defmodule AndyWorld.Robot do
          degrees_per_rotation,
          tiles_per_rotation,
          tiles,
-         robots
+         other_robots
        ) do
     # negative if backward-moving rotations
     left_forward_rotations =
@@ -176,10 +182,18 @@ defmodule AndyWorld.Robot do
         right_forward_rotations,
         tiles_per_rotation,
         tiles,
-        robots
+        other_robots
       )
 
     %{orientation: angle, x: new_x, y: new_y}
+  end
+
+  defp reset_motors(%Robot{motors: motors} = robot) do
+    updated_motors =
+      Enum.map(motors, fn {port, motor} -> {port, Motor.reset_controls(motor)} end)
+      |> Enum.into(%{})
+
+    %Robot{robot | motors: updated_motors}
   end
 
   defp new_orientation(
@@ -201,17 +215,18 @@ defmodule AndyWorld.Robot do
          right_forward_rotations,
          tiles_per_rotation,
          tiles,
-         robots
+         other_robots
        ) do
-    rotations = (left_forward_rotations + right_forward_rotations) |> div(2)
+    rotations = (left_forward_rotations + right_forward_rotations) / 2
     distance = rotations * tiles_per_rotation
-    delta_x = :math.cos(Space.d2r(angle)) * distance
-    delta_y = :math.sin(Space.d2r(angle)) * distance
+    delta_y = :math.cos(Space.d2r(angle)) * distance
+    delta_x = :math.sin(Space.d2r(angle)) * distance
     new_x = x + delta_x
     new_y = y + delta_y
     {:ok, tile} = Space.get_tile(tiles, {new_x, new_y})
 
-    if Space.occupied?(tile, robots) do
+    if Space.occupied?(tile, other_robots) do
+      Logger.info("Can't move to new position #{inspect({new_x, new_y})}. Tile is occupied")
       {x, y}
     else
       {new_x, new_y}

@@ -28,7 +28,7 @@ defmodule AndyWorld.Sensing.Ultrasonic.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       assert {:ok, 100} = AndyWorld.read(name: :andy, sensor_id: "in4", sense: :distance)
@@ -53,7 +53,7 @@ defmodule AndyWorld.Sensing.Ultrasonic.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       assert {:ok, 30} = AndyWorld.read(name: :andy, sensor_id: "in4", sense: :distance)
@@ -75,7 +75,7 @@ defmodule AndyWorld.Sensing.Ultrasonic.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       AndyWorld.place_robot(
@@ -93,7 +93,7 @@ defmodule AndyWorld.Sensing.Ultrasonic.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       assert {:ok, 115} = AndyWorld.read(name: :andy, sensor_id: "in4", sense: :distance)

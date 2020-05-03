@@ -28,7 +28,7 @@ defmodule AndyWorld.Sensing.IRSeeker.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       assert {:ok, :unknown} =
@@ -49,7 +49,7 @@ defmodule AndyWorld.Sensing.IRSeeker.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       assert {:ok, 45} = AndyWorld.read(name: :andy, sensor_id: "in1", sense: :direction_mod)
@@ -87,7 +87,7 @@ defmodule AndyWorld.Sensing.IRSeeker.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       assert {:ok, :unknown} =
@@ -108,7 +108,7 @@ defmodule AndyWorld.Sensing.IRSeeker.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       assert {:ok, 3} = AndyWorld.read(name: :andy, sensor_id: "in1", sense: :proximity_mod)

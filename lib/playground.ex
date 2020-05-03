@@ -116,7 +116,7 @@ defmodule AndyWorld.Playground do
     robot = Map.fetch!(robots, robot_name)
     {:ok, tile} = Space.get_tile(tiles, row: row, column: column)
 
-    if Space.occupied?(tile, Map.values(robots)) do
+    if Space.occupied?(tile, Map.values(robots) -- [robot]) do
       {:reply, {:error, :occupied}, state}
     else
       moved_robot = Robot.move_to(robot, row: row, column: column)
@@ -154,7 +154,7 @@ defmodule AndyWorld.Playground do
 
   def handle_call({:actuated, robot_name, intent}, _from, %{robots: robots, tiles: tiles} = state) do
     robot = Map.fetch!(robots, robot_name)
-    updated_robot = Robot.actuate(robot, intent, tiles, robots)
+    updated_robot = Robot.actuate(robot, intent, tiles, Map.values(robots))
     {:reply, :ok, %State{state | robots: Map.put(robots, robot.name, updated_robot)}}
   end
 

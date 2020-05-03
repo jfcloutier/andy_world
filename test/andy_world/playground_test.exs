@@ -49,8 +49,8 @@ defmodule AndyWorld.Playground.Test do
            row: 5,
            column: 6,
            orientation: 90,
-           sensor_data: %{},
-           motor_data: %{}}
+           sensor_data: [],
+           motor_data: []}
         )
 
       robots = AndyWorld.robots()
@@ -69,8 +69,8 @@ defmodule AndyWorld.Playground.Test do
           row: 5,
           column: 6,
           orientation: 90,
-          sensor_data: %{},
-          motor_data: %{}
+          sensor_data: [],
+          motor_data: []
         )
 
       assert robot.name == :andy

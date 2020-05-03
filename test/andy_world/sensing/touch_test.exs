@@ -31,7 +31,7 @@ defmodule AndyWorld.Sensing.Touch.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       assert {:ok, :released} = AndyWorld.read(name: :andy, sensor_id: "in1", sense: :touch)
@@ -53,7 +53,7 @@ defmodule AndyWorld.Sensing.Touch.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       assert {:ok, :released} = AndyWorld.read(name: :andy, sensor_id: "in1", sense: :touch)
@@ -75,7 +75,7 @@ defmodule AndyWorld.Sensing.Touch.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       assert {:ok, :pressed} = AndyWorld.read(name: :andy, sensor_id: "in1", sense: :touch)
@@ -97,7 +97,7 @@ defmodule AndyWorld.Sensing.Touch.Test do
             aim: 0
           }
         ],
-        motor_data: %{}
+        motor_data: []
       )
 
       assert {:ok, :pressed} = AndyWorld.read(name: :andy, sensor_id: "in1", sense: :touch)

@@ -24,8 +24,8 @@ defmodule AndyWorld.Space.Test do
           row: 5,
           column: 6,
           orientation: 90,
-          sensor_data: %{},
-          motor_data: %{}
+          sensor_data: [],
+          motor_data: []
         )
 
       assert {19, 5} == Space.closest_obstructed(tiles, robot, 90, AndyWorld.robots())
@@ -99,8 +99,8 @@ defmodule AndyWorld.Space.Test do
           row: 6,
           column: 9,
           orientation: 90,
-          sensor_data: %{},
-          motor_data: %{}
+          sensor_data: [],
+          motor_data: []
         )
 
       {:ok, tile} = Space.get_tile(tiles, row: 6, column: 11)
@@ -188,8 +188,8 @@ defmodule AndyWorld.Space.Test do
           row: 6,
           column: 9,
           orientation: 0,
-          sensor_data: %{},
-          motor_data: %{}
+          sensor_data: [],
+          motor_data: []
         )
 
       AndyWorld.place_robot(
@@ -198,8 +198,8 @@ defmodule AndyWorld.Space.Test do
         row: 1,
         column: 1,
         orientation: 0,
-        sensor_data: %{},
-        motor_data: %{}
+        sensor_data: [],
+        motor_data: []
       )
 
       AndyWorld.place_robot(
@@ -208,8 +208,8 @@ defmodule AndyWorld.Space.Test do
         row: 18,
         column: 18,
         orientation: 0,
-        sensor_data: %{},
-        motor_data: %{}
+        sensor_data: [],
+        motor_data: []
       )
 
       robots = AndyWorld.robots()
@@ -230,8 +230,8 @@ defmodule AndyWorld.Space.Test do
           row: 6,
           column: 9,
           orientation: 0,
-          sensor_data: %{},
-          motor_data: %{}
+          sensor_data: [],
+          motor_data: []
         )
 
       karl =
@@ -241,8 +241,8 @@ defmodule AndyWorld.Space.Test do
           row: 1,
           column: 1,
           orientation: 0,
-          sensor_data: %{},
-          motor_data: %{}
+          sensor_data: [],
+          motor_data: []
         )
 
       rodney =
@@ -252,8 +252,8 @@ defmodule AndyWorld.Space.Test do
           row: 18,
           column: 18,
           orientation: 0,
-          sensor_data: %{},
-          motor_data: %{}
+          sensor_data: [],
+          motor_data: []
         )
 
       assert round(Space.distance_to_other_robot(andy, karl)) == 94
