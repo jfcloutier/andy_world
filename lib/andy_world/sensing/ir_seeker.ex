@@ -2,6 +2,7 @@ defmodule AndyWorld.Sensing.IRSeeker do
   @moduledoc "Sensing ir_seeker"
 
   alias AndyWorld.{Sensing, Space}
+  require Logger
 
   @behaviour Sensing
 
@@ -11,11 +12,18 @@ defmodule AndyWorld.Sensing.IRSeeker do
       when sense in [:direction, :direction_mod] do
     case Space.closest_robot_visible_to(robot, tiles, robots) do
       {:error, :not_found} ->
+        Logger.info("No closest robot found")
         :unknown
 
       {:ok, closest_robot} ->
         direction = Space.direction_to_other_robot(ir_seeker_sensor, robot, closest_robot)
-        if abs(direction) > 120, do: :unknown, else: direction
+
+        if abs(direction) > 120 do
+          Logger.info("Direction #{direction} out of 120 degrees range")
+          :unknown
+        else
+          direction
+        end
     end
   end
 
@@ -25,12 +33,14 @@ defmodule AndyWorld.Sensing.IRSeeker do
       when sense in [:proximity, :proximity_mod] do
     case Space.closest_robot_visible_to(robot, tiles, robots) do
       {:error, :not_found} ->
+        Logger.info("No closest robot found")
         :unknown
 
       {:ok, closest_robot} ->
         direction = Space.direction_to_other_robot(ir_seeker_sensor, robot, closest_robot)
 
         if abs(direction) > 120 do
+          Logger.info("Direction #{direction} out of 120 degrees range")
           :unknown
         else
           distance_cm = Space.distance_to_other_robot(robot, closest_robot)
