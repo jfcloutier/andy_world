@@ -5,6 +5,7 @@ defmodule AndyWorld.Sensing.Infrared do
   """
 
   alias AndyWorld.{Sensing, Space, Tile, Sensing.Sensor, Robot}
+  require Logger
 
   @behaviour Sensing
 
@@ -17,10 +18,12 @@ defmodule AndyWorld.Sensing.Infrared do
       %Tile{} = beacon_tile ->
         if beacon_in_front?(
              beacon_tile,
-             robot
+             robot,
+             tiles
            ) and Space.tile_visible_to?(beacon_tile, robot, tiles, robots) do
           sensor_angle = Sensor.absolute_orientation(infrared_sensor.aim, robot.orientation)
-
+          # angle relative to where the sensor is pointing.
+          # 0 is right in front, 90 is 9 o'clock, 180 is 3 o'clock
           angle_perceived =
             Space.angle_perceived(
               Robot.locate(robot),
@@ -51,7 +54,8 @@ defmodule AndyWorld.Sensing.Infrared do
       %Tile{} = beacon_tile ->
         if beacon_in_front?(
              beacon_tile,
-             robot
+             robot,
+             tiles
            ) and Space.tile_visible_to?(beacon_tile, robot, tiles, robots) do
           sensor_angle = Sensor.absolute_orientation(infrared_sensor.aim, robot.orientation)
           {beacon_x, beacon_y} = beacon_location = Tile.location(beacon_tile)
@@ -94,8 +98,11 @@ defmodule AndyWorld.Sensing.Infrared do
 
   defp beacon_in_front?(
          %Tile{beacon_orientation: beacon_orientation, row: beacon_row, column: beacon_column},
-         %Tile{row: robot_row, column: robot_column}
+         %Robot{} = robot,
+         tiles
        ) do
+    {:ok, %Tile{row: robot_row, column: robot_column}} = Space.get_tile(tiles, robot)
+
     case beacon_orientation do
       "S" ->
         robot_row < beacon_row

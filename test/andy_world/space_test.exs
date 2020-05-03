@@ -167,13 +167,15 @@ defmodule AndyWorld.Space.Test do
 
     test "Angle perceived" do
       assert 0 == Space.angle_perceived({0, 0}, 0, {0, 0})
-      assert 45 == Space.angle_perceived({0, 0}, 0, {100, 100})
-      assert 0 == Space.angle_perceived({0, 0}, 45, {100, 100})
-      assert 90 == Space.angle_perceived({0, 0}, 0, {0, 100})
-      assert 180 = Space.angle_perceived({100, 100}, 0, {100, 0})
-      assert -135 = Space.angle_perceived({100, 100}, 0, {0, 0})
-      assert 135 = Space.angle_perceived({0, 100}, 0, {100, 0})
-      assert -45 = Space.angle_perceived({100, 0}, 0, {0, 100})
+      assert 45 == Space.angle_perceived({0, 0}, 0, {10, 10})
+      assert 0 == Space.angle_perceived({0, 0}, 45, {10, 10})
+      assert 0 == Space.angle_perceived({0, 0}, 0, {0, 10})
+      assert -90 = Space.angle_perceived({10, 0}, 0, {0, 0})
+      assert -135 = Space.angle_perceived({10, 10}, 0, {0, 0})
+      assert -45 = Space.angle_perceived({10, 0}, 0, {0, 10})
+      assert 135 = Space.angle_perceived({0, 10}, 0, {10, 0})
+      assert 180 = Space.angle_perceived({0, 10}, 0, {0, 0})
+      assert 0 = Space.angle_perceived({10, 10}, -135, {0, 0})
     end
   end
 

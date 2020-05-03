@@ -203,28 +203,34 @@ defmodule AndyWorld.Space do
     Enum.find(List.flatten(tiles), &(&1.beacon_orientation != nil))
   end
 
+  # 0 is noon, 90 is 3 o'clock, 180 is 6 o'clock, -90 is 9 o'clock
   def angle_perceived({from_x, from_y}, sensor_angle, {target_x, target_y}) do
     distance_y = target_y - from_y
     distance_x = target_x - from_x
 
-    if distance_x == 0 and distance_y == 0 do
-      0
-    else
-      angle_r = :math.atan(abs(distance_y) / max(abs(distance_x), 0.00000001))
-      abs_angle = r2d(angle_r) |> round()
-      sign_x = sign(distance_x)
-      sign_y = sign(distance_y)
+    angle =
+      cond do
+        distance_x == 0 and distance_y >= 0 ->
+          0
 
-      angle =
-        cond do
-          sign_x == 1 and sign_y == -1 -> abs_angle + 90
-          sign_x == -1 and sign_y == 1 -> abs_angle + 270
-          sign_x == -1 and sign_y == -1 -> abs_angle + 180
-          true -> abs_angle
-        end
+        distance_x == 0 and distance_y < 0 ->
+          180
 
-      normalize_orientation(angle - sensor_angle)
-    end
+        true ->
+          angle_r = :math.atan(abs(distance_y) / abs(distance_x))
+          abs_angle = r2d(angle_r) |> round()
+          sign_x = sign(distance_x)
+          sign_y = sign(distance_y)
+
+          cond do
+            sign_x == 1 and sign_y == 1 -> 90 - abs_angle
+            sign_x == 1 and sign_y == -1 -> abs_angle + 90
+            sign_x == -1 and sign_y == 1 -> abs_angle - 90
+            sign_x == -1 and sign_y == -1 -> abs_angle - 180
+          end
+      end
+
+    normalize_orientation(angle - sensor_angle)
   end
 
   def d2r(d) do

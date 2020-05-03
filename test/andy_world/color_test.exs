@@ -85,7 +85,9 @@ defmodule AndyWorld.Sensing.Color.Test do
         ],
         motor_data: %{}
       )
-      assert {:ok, ^default_ambient} = AndyWorld.read(name: :andy, sensor_id: "in2", sense: :ambient)
+
+      assert {:ok, ^default_ambient} =
+               AndyWorld.read(name: :andy, sensor_id: "in2", sense: :ambient)
     end
 
     test "See the darknesst" do
@@ -106,8 +108,8 @@ defmodule AndyWorld.Sensing.Color.Test do
         ],
         motor_data: %{}
       )
+
       assert {:ok, 10} = AndyWorld.read(name: :andy, sensor_id: "in2", sense: :ambient)
     end
-
   end
 end

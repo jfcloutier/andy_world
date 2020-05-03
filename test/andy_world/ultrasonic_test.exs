@@ -24,7 +24,7 @@ defmodule AndyWorld.Sensing.Ultrasonic.Test do
             port: "in4",
             type: :ultrasonic,
             position: :front,
-            height_cm: 2,
+            height_cm: 10,
             aim: 0
           }
         ],
@@ -35,7 +35,6 @@ defmodule AndyWorld.Sensing.Ultrasonic.Test do
 
       AndyWorld.move_robot(name: :andy, row: 0, column: 0)
       assert {:ok, 2} = AndyWorld.read(name: :andy, sensor_id: "in4", sense: :distance)
-
     end
 
     test "Distance to obstacle" do
@@ -101,7 +100,6 @@ defmodule AndyWorld.Sensing.Ultrasonic.Test do
 
       AndyWorld.move_robot(name: :karl, row: 9, column: 9)
       assert {:ok, 16} = AndyWorld.read(name: :andy, sensor_id: "in4", sense: :distance)
-
     end
   end
 end
