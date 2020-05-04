@@ -22,6 +22,8 @@ defmodule AndyWorld do
     robot
   end
 
+  ### Test support
+
   def place_robot(
         name: robot_name,
         node: node,
@@ -47,6 +49,18 @@ defmodule AndyWorld do
     robot
   end
 
+  def read(name: robot_name, sensor_id: sensor_id, sense: sense) do
+    GenServer.call(playground(), {:read, robot_name, sensor_id, sense})
+  end
+
+  def actuate(name: robot_name, intent: intent) do
+    GenServer.call(playground(), {:actuated, robot_name, %{kind: intent}})
+  end
+
+  def set_motor_control(name: robot_name, port: port, control: control, value: value) do
+    GenServer.call(playground(), {:set_motor_control, robot_name, port, control, value})
+  end
+
   def move_robot(name: robot_name, row: row, column: column) do
     {:ok, robot} =
       GenServer.call(playground(), {:move_robot, name: robot_name, row: row, column: column})
@@ -63,17 +77,5 @@ defmodule AndyWorld do
 
   def clear_robots() do
     GenServer.call(playground(), :clear_robots)
-  end
-
-  def read(name: robot_name, sensor_id: sensor_id, sense: sense) do
-    GenServer.call(playground(), {:read, robot_name, sensor_id, sense})
-  end
-
-  def actuate(name: robot_name, intent: intent) do
-    GenServer.call(playground(), {:actuated, robot_name, %{kind: intent}})
-  end
-
-  def set_motor_control(name: robot_name, port: port, control: control, value: value) do
-    GenServer.call(playground(), {:set_motor_control, robot_name, port, control, value})
   end
 end

@@ -73,6 +73,28 @@ defmodule AndyWorld.Actuating.Motor.Test do
       assert after_y > before_y
     end
 
+    test "Move forward up with obstacle", %{motor_data: motor_data} do
+      AndyWorld.place_robot(
+        name: :andy,
+        node: node(),
+        row: 5,
+        column: 14,
+        orientation: 0,
+        sensor_data: [],
+        motor_data: motor_data
+      )
+
+      AndyWorld.set_motor_control(name: :andy, port: "outA", control: :speed, value: 1)
+      AndyWorld.set_motor_control(name: :andy, port: "outA", control: :time, value: 10)
+      AndyWorld.set_motor_control(name: :andy, port: "outB", control: :speed, value: 1)
+      AndyWorld.set_motor_control(name: :andy, port: "outB", control: :time, value: 10)
+      {before_x, before_y} = AndyWorld.robot(:andy) |> Robot.locate()
+      AndyWorld.actuate(name: :andy, intent: :locomotion)
+      {after_x, after_y} = AndyWorld.robot(:andy) |> Robot.locate()
+      assert before_x == after_x
+      assert floor(after_y) == floor(before_y)
+    end
+
     test "Move forward down", %{motor_data: motor_data} do
       AndyWorld.place_robot(
         name: :andy,
