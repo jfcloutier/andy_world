@@ -33,7 +33,7 @@ defmodule AndyWorld do
         sensor_data: sensor_data,
         motor_data: motor_data
       ) do
-    {:ok, robot} =
+    :ok =
       GenServer.call(
         playground(),
         {:place_robot,
@@ -45,8 +45,7 @@ defmodule AndyWorld do
          sensor_data: sensor_data,
          motor_data: motor_data}
       )
-
-    robot
+    robot(robot_name)
   end
 
   def read(name: robot_name, sensor_id: sensor_id, sense: sense) do
@@ -54,7 +53,7 @@ defmodule AndyWorld do
   end
 
   def actuate(name: robot_name, intent: intent) do
-    GenServer.call(playground(), {:actuated, robot_name, %{kind: intent}})
+    GenServer.call(playground(), {:actuate, robot_name, %{kind: intent}})
   end
 
   def set_motor_control(name: robot_name, port: port, control: control, value: value) do

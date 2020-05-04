@@ -37,6 +37,7 @@ defmodule AndyWorld.Playground do
   end
 
   # An event was broadcasted by a robot
+  # TODO - respond to {:actuated, kind} by actuating
   def handle_cast({:event, robot_name, event}, %State{robots: robots} = state) do
     robot = Map.fetch!(robots, robot_name)
     updated_robot = Robot.record_event(robot, event)
@@ -78,7 +79,7 @@ defmodule AndyWorld.Playground do
 
         {
           :reply,
-          {:ok, robot},
+          :ok,
           %State{
             state
             | robots:
@@ -122,8 +123,9 @@ defmodule AndyWorld.Playground do
     }
   end
 
-  # A robot's motors are actuated
-  def handle_call({:actuated, robot_name, intent}, _from, %{robots: robots, tiles: tiles} = state) do
+  # Run a robot's motors
+  # TODO - fold as event reponse
+  def handle_call({:actuate, robot_name, intent}, _from, %{robots: robots, tiles: tiles} = state) do
     robot = Map.fetch!(robots, robot_name)
     updated_robot = Robot.actuate(robot, intent, tiles, Map.values(robots))
     {:reply, :ok, %State{state | robots: Map.put(robots, robot.name, updated_robot)}}

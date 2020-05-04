@@ -40,7 +40,7 @@ defmodule AndyWorld.Playground.Test do
 
   describe "Placing and moving robots" do
     test "Placing a robot", %{tiles: tiles} do
-      {:ok, andy} =
+      :ok =
         GenServer.call(
           AndyWorld.playground(),
           {:place_robot,
@@ -54,6 +54,7 @@ defmodule AndyWorld.Playground.Test do
         )
 
       robots = AndyWorld.robots()
+      andy = AndyWorld.robot(:andy)
       assert andy.name == :andy
       assert andy.x == 6.5
       assert andy.y == 5.5
