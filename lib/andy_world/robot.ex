@@ -144,7 +144,8 @@ defmodule AndyWorld.Robot do
           end
         )
 
-      %Robot{robot | orientation: position.orientation, x: position.x, y: position.y}
+      new_orientation = Space.normalize_orientation(floor(position.orientation))
+      %Robot{robot | orientation: new_orientation, x: position.x, y: position.y}
     end
   end
 
@@ -203,8 +204,9 @@ defmodule AndyWorld.Robot do
          degrees_per_rotation
        ) do
     effective_rotations = left_forward_rotations - right_forward_rotations
-    delta_orientation = (effective_rotations * degrees_per_rotation) |> floor()
-    Space.normalize_orientation(orientation + delta_orientation)
+
+    delta_orientation = effective_rotations * degrees_per_rotation
+    orientation + delta_orientation
   end
 
   defp new_position(

@@ -68,8 +68,7 @@ defmodule AndyWorld.Actuating.Motor.Test do
       AndyWorld.set_motor_control(name: :andy, port: "outB", control: :time, value: 10)
       {before_x, before_y} = AndyWorld.robot(:andy) |> Robot.locate()
       AndyWorld.actuate(name: :andy, intent: :locomotion)
-      {after_x, after_y} = after_location = AndyWorld.robot(:andy) |> Robot.locate()
-      Logger.warn("After location = #{inspect(after_location)}")
+      {after_x, after_y} = AndyWorld.robot(:andy) |> Robot.locate()
       assert before_x == after_x
       assert after_y > before_y
     end
@@ -91,8 +90,7 @@ defmodule AndyWorld.Actuating.Motor.Test do
       AndyWorld.set_motor_control(name: :andy, port: "outB", control: :time, value: 10)
       {before_x, before_y} = AndyWorld.robot(:andy) |> Robot.locate()
       AndyWorld.actuate(name: :andy, intent: :locomotion)
-      {after_x, after_y} = after_location = AndyWorld.robot(:andy) |> Robot.locate()
-      Logger.warn("After location = #{inspect(after_location)}")
+      {after_x, after_y} = AndyWorld.robot(:andy) |> Robot.locate()
       assert before_x == after_x
       assert after_y < before_y
     end
@@ -114,8 +112,7 @@ defmodule AndyWorld.Actuating.Motor.Test do
       AndyWorld.set_motor_control(name: :andy, port: "outB", control: :time, value: 10)
       {before_x, before_y} = AndyWorld.robot(:andy) |> Robot.locate()
       AndyWorld.actuate(name: :andy, intent: :locomotion)
-      {after_x, after_y} = after_location = AndyWorld.robot(:andy) |> Robot.locate()
-      Logger.warn("After location = #{inspect(after_location)}")
+      {after_x, after_y} = AndyWorld.robot(:andy) |> Robot.locate()
       assert after_x > before_x
       assert after_y == before_y
     end
@@ -137,8 +134,7 @@ defmodule AndyWorld.Actuating.Motor.Test do
       AndyWorld.set_motor_control(name: :andy, port: "outB", control: :time, value: 10)
       {before_x, before_y} = AndyWorld.robot(:andy) |> Robot.locate()
       AndyWorld.actuate(name: :andy, intent: :locomotion)
-      {after_x, after_y} = after_location = AndyWorld.robot(:andy) |> Robot.locate()
-      Logger.warn("After location = #{inspect(after_location)}")
+      {after_x, after_y} = AndyWorld.robot(:andy) |> Robot.locate()
       assert after_x < before_x
       assert after_y == before_y
     end
@@ -160,8 +156,7 @@ defmodule AndyWorld.Actuating.Motor.Test do
       AndyWorld.set_motor_control(name: :andy, port: "outB", control: :time, value: 10)
       {before_x, before_y} = AndyWorld.robot(:andy) |> Robot.locate()
       AndyWorld.actuate(name: :andy, intent: :locomotion)
-      {after_x, after_y} = after_location = AndyWorld.robot(:andy) |> Robot.locate()
-      Logger.warn("After location = #{inspect(after_location)}")
+      {after_x, after_y} = AndyWorld.robot(:andy) |> Robot.locate()
       assert after_x > before_x
       assert after_y > before_y
     end
@@ -183,8 +178,7 @@ defmodule AndyWorld.Actuating.Motor.Test do
       AndyWorld.set_motor_control(name: :andy, port: "outB", control: :time, value: 10)
       {before_x, before_y} = AndyWorld.robot(:andy) |> Robot.locate()
       AndyWorld.actuate(name: :andy, intent: :locomotion)
-      {after_x, after_y} = after_location = AndyWorld.robot(:andy) |> Robot.locate()
-      Logger.warn("After location = #{inspect(after_location)}")
+      {after_x, after_y} = AndyWorld.robot(:andy) |> Robot.locate()
       assert after_x < before_x
       assert after_y < before_y
     end
@@ -206,8 +200,7 @@ defmodule AndyWorld.Actuating.Motor.Test do
       AndyWorld.set_motor_control(name: :andy, port: "outB", control: :time, value: 10)
       {before_x, before_y} = AndyWorld.robot(:andy) |> Robot.locate()
       AndyWorld.actuate(name: :andy, intent: :locomotion)
-      {after_x, after_y} = after_location = AndyWorld.robot(:andy) |> Robot.locate()
-      Logger.warn("After location = #{inspect(after_location)}")
+      {after_x, after_y} = AndyWorld.robot(:andy) |> Robot.locate()
       assert before_x == after_x
       assert after_y < before_y
     end
@@ -229,8 +222,7 @@ defmodule AndyWorld.Actuating.Motor.Test do
       AndyWorld.set_motor_control(name: :andy, port: "outB", control: :time, value: 10)
       {before_x, before_y} = AndyWorld.robot(:andy) |> Robot.locate()
       AndyWorld.actuate(name: :andy, intent: :locomotion)
-      {after_x, after_y} = after_location = AndyWorld.robot(:andy) |> Robot.locate()
-      Logger.warn("After location = #{inspect(after_location)}")
+      {after_x, after_y} = AndyWorld.robot(:andy) |> Robot.locate()
       assert before_x == after_x
       assert after_y > before_y
     end
@@ -252,8 +244,7 @@ defmodule AndyWorld.Actuating.Motor.Test do
       AndyWorld.set_motor_control(name: :andy, port: "outB", control: :time, value: 10)
       {before_x, before_y} = AndyWorld.robot(:andy) |> Robot.locate()
       AndyWorld.actuate(name: :andy, intent: :locomotion)
-      {after_x, after_y} = after_location = AndyWorld.robot(:andy) |> Robot.locate()
-      Logger.warn("After location = #{inspect(after_location)}")
+      {after_x, after_y} = AndyWorld.robot(:andy) |> Robot.locate()
       assert after_x > before_x
       assert after_y == before_y
     end
@@ -275,16 +266,131 @@ defmodule AndyWorld.Actuating.Motor.Test do
       AndyWorld.set_motor_control(name: :andy, port: "outB", control: :time, value: 10)
       {before_x, before_y} = AndyWorld.robot(:andy) |> Robot.locate()
       AndyWorld.actuate(name: :andy, intent: :locomotion)
-      {after_x, after_y} = after_location = AndyWorld.robot(:andy) |> Robot.locate()
-      Logger.warn("After location = #{inspect(after_location)}")
+      {after_x, after_y} = AndyWorld.robot(:andy) |> Robot.locate()
       assert after_x < before_x
       assert after_y < before_y
     end
   end
 
   describe "Turning" do
-    test "Turning right" do
-      
+    test "Pointing up, turning right", %{motor_data: motor_data} do
+      AndyWorld.place_robot(
+        name: :andy,
+        node: node(),
+        row: 10,
+        column: 10,
+        orientation: 0,
+        sensor_data: [],
+        motor_data: motor_data
+      )
+
+      AndyWorld.set_motor_control(name: :andy, port: "outA", control: :speed, value: 0.1)
+      AndyWorld.set_motor_control(name: :andy, port: "outA", control: :time, value: 1)
+      AndyWorld.set_motor_control(name: :andy, port: "outB", control: :speed, value: -0.1)
+      AndyWorld.set_motor_control(name: :andy, port: "outB", control: :time, value: 1)
+      {before_x, before_y} = AndyWorld.robot(:andy) |> Robot.locate()
+      AndyWorld.actuate(name: :andy, intent: :locomotion)
+      {after_x, after_y} = AndyWorld.robot(:andy) |> Robot.locate()
+      assert after_x == before_x
+      assert after_y == before_y
+      after_orientation = AndyWorld.robot(:andy).orientation
+      assert after_orientation > 0
+    end
+
+    test "Pointing up, turning left", %{motor_data: motor_data} do
+      AndyWorld.place_robot(
+        name: :andy,
+        node: node(),
+        row: 10,
+        column: 10,
+        orientation: 0,
+        sensor_data: [],
+        motor_data: motor_data
+      )
+
+      AndyWorld.set_motor_control(name: :andy, port: "outA", control: :speed, value: -0.1)
+      AndyWorld.set_motor_control(name: :andy, port: "outA", control: :time, value: 1)
+      AndyWorld.set_motor_control(name: :andy, port: "outB", control: :speed, value: 0.1)
+      AndyWorld.set_motor_control(name: :andy, port: "outB", control: :time, value: 1)
+      {before_x, before_y} = AndyWorld.robot(:andy) |> Robot.locate()
+      AndyWorld.actuate(name: :andy, intent: :locomotion)
+      {after_x, after_y} = AndyWorld.robot(:andy) |> Robot.locate()
+      assert after_x == before_x
+      assert after_y == before_y
+      after_orientation = AndyWorld.robot(:andy).orientation
+      assert after_orientation < 0
+    end
+
+    test "Pointing right, turning right", %{motor_data: motor_data} do
+      AndyWorld.place_robot(
+        name: :andy,
+        node: node(),
+        row: 10,
+        column: 10,
+        orientation: 90,
+        sensor_data: [],
+        motor_data: motor_data
+      )
+
+      AndyWorld.set_motor_control(name: :andy, port: "outA", control: :speed, value: 0.1)
+      AndyWorld.set_motor_control(name: :andy, port: "outA", control: :time, value: 1)
+      AndyWorld.set_motor_control(name: :andy, port: "outB", control: :speed, value: -0.1)
+      AndyWorld.set_motor_control(name: :andy, port: "outB", control: :time, value: 1)
+      {before_x, before_y} = AndyWorld.robot(:andy) |> Robot.locate()
+      AndyWorld.actuate(name: :andy, intent: :locomotion)
+      {after_x, after_y} = AndyWorld.robot(:andy) |> Robot.locate()
+      assert after_x == before_x
+      assert after_y == before_y
+      after_orientation = AndyWorld.robot(:andy).orientation
+      assert after_orientation > 0
+    end
+
+    test "Pointing down, turning left", %{motor_data: motor_data} do
+      AndyWorld.place_robot(
+        name: :andy,
+        node: node(),
+        row: 10,
+        column: 10,
+        orientation: 180,
+        sensor_data: [],
+        motor_data: motor_data
+      )
+
+      AndyWorld.set_motor_control(name: :andy, port: "outA", control: :speed, value: -0.1)
+      AndyWorld.set_motor_control(name: :andy, port: "outA", control: :time, value: 1)
+      AndyWorld.set_motor_control(name: :andy, port: "outB", control: :speed, value: 0.1)
+      AndyWorld.set_motor_control(name: :andy, port: "outB", control: :time, value: 1)
+      {before_x, before_y} = AndyWorld.robot(:andy) |> Robot.locate()
+      AndyWorld.actuate(name: :andy, intent: :locomotion)
+      {after_x, after_y} = AndyWorld.robot(:andy) |> Robot.locate()
+      assert after_x == before_x
+      assert after_y == before_y
+      after_orientation = AndyWorld.robot(:andy).orientation
+      assert after_orientation < 180
+    end
+
+    test "Pointing left, turning right", %{motor_data: motor_data} do
+      AndyWorld.place_robot(
+        name: :andy,
+        node: node(),
+        row: 10,
+        column: 10,
+        orientation: -90,
+        sensor_data: [],
+        motor_data: motor_data
+      )
+
+      AndyWorld.set_motor_control(name: :andy, port: "outA", control: :speed, value: 0.1)
+      AndyWorld.set_motor_control(name: :andy, port: "outA", control: :time, value: 1)
+      AndyWorld.set_motor_control(name: :andy, port: "outB", control: :speed, value: -0.1)
+      AndyWorld.set_motor_control(name: :andy, port: "outB", control: :time, value: 1)
+      {before_x, before_y} = AndyWorld.robot(:andy) |> Robot.locate()
+      AndyWorld.actuate(name: :andy, intent: :locomotion)
+      {after_x, after_y} = AndyWorld.robot(:andy) |> Robot.locate()
+      assert after_x == before_x
+      assert after_y == before_y
+      after_orientation = AndyWorld.robot(:andy).orientation
+      assert after_orientation > -90
     end
   end
 end
