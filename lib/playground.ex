@@ -96,15 +96,19 @@ defmodule AndyWorld.Playground do
     end
   end
 
-  # A sensor is read for a sense
+  # A sensor is read for a sense. Allow concurrent reads.
   def handle_call(
         {:read, robot_name, sensor_id, sense},
-        _from,
+        from,
         %State{robots: robots, tiles: tiles} = state
       ) do
-    robot = Map.fetch!(robots, robot_name)
-    value = Robot.sense(robot, sensor_id, sense, tiles, Map.values(robots))
-    {:reply, {:ok, value}, state}
+    spawn_link(fn ->
+      robot = Map.fetch!(robots, robot_name)
+      value = Robot.sense(robot, sensor_id, sense, tiles, Map.values(robots))
+      GenServer.reply(from, {:ok, value})
+    end)
+
+    {:noreply, state}
   end
 
   # A motor control is set
@@ -124,10 +128,17 @@ defmodule AndyWorld.Playground do
   end
 
   # Run a robot's motors
-  # TODO - fold as event reponse
-  def handle_call({:actuate, robot_name, intent}, _from, %{robots: robots, tiles: tiles} = state) do
+  def handle_call(
+        {:actuate, robot_name, intent} = event,
+        _from,
+        %{robots: robots, tiles: tiles} = state
+      ) do
     robot = Map.fetch!(robots, robot_name)
-    updated_robot = Robot.actuate(robot, intent, tiles, Map.values(robots))
+
+    updated_robot =
+      Robot.actuate(robot, intent, tiles, Map.values(robots))
+      |> Robot.record_event(event)
+
     {:reply, :ok, %State{state | robots: Map.put(robots, robot.name, updated_robot)}}
   end
 
