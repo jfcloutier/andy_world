@@ -28,7 +28,7 @@ defmodule AndyWorld.Playground do
   @spec start_link :: :ignore | {:error, any} | {:ok, pid}
   def start_link() do
     Logger.info("Starting #{inspect(__MODULE__)}")
-    GenServer.start_link(__MODULE__, :ok, name: {:global, :andy_world})
+    GenServer.start_link(__MODULE__, :ok, name: :playground)
   end
 
   @spec init(any) :: {:ok, AndyWorld.Playground.State.t()}

@@ -10,7 +10,7 @@ use Mix.Config
 config :andy_world,
   default_ambient: 10,
   default_color: 7,
-  max_events_remembered: 500,
+  max_events_remembered: 1,
   tile_side_cm: 10,
   tiles_per_rotation: 0.5,
   degrees_per_motor_rotation: 45,

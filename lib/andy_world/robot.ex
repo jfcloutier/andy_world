@@ -64,7 +64,7 @@ defmodule AndyWorld.Robot do
 
   def actuate(
         %Robot{} = robot,
-        %{kind: :locomotion} = _intent,
+        :locomotion,
         tiles,
         robots
       ) do
@@ -72,12 +72,12 @@ defmodule AndyWorld.Robot do
     reset_motors(updated_robot)
   end
 
-  def actuate(robot, _intent, _tiles) do
+  def actuate(robot, _intent_kind, _tiles, _robots) do
     # Do nothing for now if not locomotion
     robot
   end
 
-  def sense(%Robot{sensors: sensors} = robot, sensor_port, sense, tiles, robots) do
+  def sense(%Robot{sensors: sensors} = robot, sensor_port, raw_sense, tiles, robots) do
     case Map.get(sensors, sensor_port) do
       nil ->
         Logger.warn("Robot #{robot.name} has no sensor with id #{inspect(sensor_port)}")
@@ -86,6 +86,7 @@ defmodule AndyWorld.Robot do
       sensor ->
         {x, y} = locate(robot)
         {:ok, tile} = Space.get_tile(tiles, {x, y})
+        sense = unpack_sense(raw_sense)
 
         apply(Sensor.module_for(sensor.type), :sense, [
           robot,
@@ -106,6 +107,13 @@ defmodule AndyWorld.Robot do
 
   # Private
 
+  defp unpack_sense(raw_sense) do
+    case String.split("#{raw_sense}", "/") do
+      [sense, channel] -> {String.to_existing_atom(sense), channel}
+      _ -> raw_sense
+    end
+  end
+
   defp run_motors(
          %Robot{} = robot,
          tiles,
@@ -119,7 +127,9 @@ defmodule AndyWorld.Robot do
       Logger.info("Duration of actuation is 0. Do nothing.")
       robot
     else
-      ticks = ceil(Enum.max(durations) / tick_duration)
+      duration = Enum.max(durations)
+      Logger.warn("Running motors of #{robot.name} for #{duration} secs")
+      ticks = ceil(duration / tick_duration)
       degrees_per_rotation = Application.get_env(:andy_world, :degrees_per_motor_rotation)
       tiles_per_rotation = Application.get_env(:andy_world, :tiles_per_motor_rotation)
 

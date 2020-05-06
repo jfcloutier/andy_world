@@ -4,7 +4,7 @@ defmodule AndyWorld do
   """
 
   def playground() do
-    :global.whereis_name(:andy_world)
+    :playground
   end
 
   def tiles() do
