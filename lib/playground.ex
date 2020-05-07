@@ -129,14 +129,14 @@ defmodule AndyWorld.Playground do
 
   # Run a robot's motors
   def handle_call(
-        {:actuate, robot_name, actuator_type} = event,
+        {:actuate, robot_name, actuator_type, command} = event,
         _from,
         %{robots: robots, tiles: tiles} = state
       ) do
     robot = Map.fetch!(robots, robot_name)
 
     updated_robot =
-      Robot.actuate(robot, actuator_type, tiles, Map.values(robots))
+      Robot.actuate(robot, actuator_type, command, tiles, Map.values(robots))
       |> Robot.record_event(event)
 
     {:reply, :ok, %State{state | robots: Map.put(robots, robot.name, updated_robot)}}

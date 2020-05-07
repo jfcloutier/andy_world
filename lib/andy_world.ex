@@ -53,8 +53,8 @@ defmodule AndyWorld do
     GenServer.call(playground(), {:read, robot_name, sensor_id, sense})
   end
 
-  def actuate(name: robot_name, actuator_type: actuator_type) do
-    GenServer.call(playground(), {:actuate, robot_name, actuator_type})
+  def actuate(name: robot_name, actuator_type: actuator_type, command: command) do
+    GenServer.call(playground(), {:actuate, robot_name, actuator_type, command})
   end
 
   def set_motor_control(name: robot_name, port: port, control: control, value: value) do

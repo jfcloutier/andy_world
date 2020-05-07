@@ -59,9 +59,9 @@ defmodule AndyWorld.Robot do
   def set_motor_control(%Robot{motors: motors} = robot, motor_port, control, value) do
     motor = Map.fetch!(motors, motor_port)
 
-    Logger.debug(
-      "Setting control #{inspect(control)} of motor #{motor.port} to #{inspect(value)}"
-    )
+    # Logger.debug(
+    #   "Setting control #{inspect(control)} of motor #{motor.port} to #{inspect(value)}"
+    # )
 
     updated_motor = Motor.update_control(motor, control, value)
     %Robot{robot | motors: Map.put(motors, motor_port, updated_motor)}
@@ -70,6 +70,7 @@ defmodule AndyWorld.Robot do
   def actuate(
         %Robot{} = robot,
         :motor,
+        :run_for,
         tiles,
         robots
       ) do
@@ -79,7 +80,7 @@ defmodule AndyWorld.Robot do
     |> reset_motors()
   end
 
-  def actuate(robot, _actuator_type, _tiles, _robots) do
+  def actuate(robot, _actuator_type, _command, _tiles, _robots) do
     # Do nothing for now if not locomotion
     robot
   end
@@ -172,7 +173,7 @@ defmodule AndyWorld.Robot do
 
       new_orientation = Space.normalize_orientation(floor(position.orientation))
 
-      Logger.info(
+      Logger.warn(
         "#{robot.name} is now at {#{position.x}, #{position.y}} with orientation #{
           new_orientation
         }"
