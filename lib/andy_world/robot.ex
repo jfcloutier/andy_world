@@ -67,6 +67,10 @@ defmodule AndyWorld.Robot do
     %Robot{robot | motors: Map.put(motors, motor_port, updated_motor)}
   end
 
+
+  def actuated_by?(:motor, :run_for), do: true
+  def actuated_by?(_actuator_type, _command), do: false
+
   def actuate(
         %Robot{} = robot,
         :motor,
@@ -74,8 +78,6 @@ defmodule AndyWorld.Robot do
         tiles,
         robots
       ) do
-    Logger.info("Actuating motors: #{inspect(robot.motors)}")
-
     run_motors(robot, tiles, robots -- [robot])
     |> reset_motors()
   end

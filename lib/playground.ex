@@ -77,6 +77,10 @@ defmodule AndyWorld.Playground do
             column: column
           )
 
+        Logger.warn(
+          "#{name} placed at #{inspect(Robot.locate(robot))} with orientation #{orientation}"
+        )
+
         {
           :reply,
           :ok,
@@ -102,6 +106,8 @@ defmodule AndyWorld.Playground do
         from,
         %State{robots: robots, tiles: tiles} = state
       ) do
+    Logger.info("Read #{robot_name}: #{inspect(sensor_id)} #{inspect(sense)}")
+
     spawn_link(fn ->
       robot = Map.fetch!(robots, robot_name)
       value = Robot.sense(robot, sensor_id, sense, tiles, Map.values(robots))
@@ -129,15 +135,19 @@ defmodule AndyWorld.Playground do
 
   # Run a robot's motors
   def handle_call(
-        {:actuate, robot_name, actuator_type, command} = event,
+        {:actuate, robot_name, actuator_type, command},
         _from,
         %{robots: robots, tiles: tiles} = state
       ) do
     robot = Map.fetch!(robots, robot_name)
 
     updated_robot =
-      Robot.actuate(robot, actuator_type, command, tiles, Map.values(robots))
-      |> Robot.record_event(event)
+      if Robot.actuated_by?(actuator_type, command) do
+        Logger.info("Actuate #{robot.name}: #{inspect(command)} #{inspect(actuator_type)}")
+        Robot.actuate(robot, actuator_type, command, tiles, Map.values(robots))
+      else
+        robot
+      end
 
     {:reply, :ok, %State{state | robots: Map.put(robots, robot.name, updated_robot)}}
   end
