@@ -58,21 +58,28 @@ defmodule AndyWorld.Robot do
 
   def set_motor_control(%Robot{motors: motors} = robot, motor_port, control, value) do
     motor = Map.fetch!(motors, motor_port)
+
+    Logger.debug(
+      "Setting control #{inspect(control)} of motor #{motor.port} to #{inspect(value)}"
+    )
+
     updated_motor = Motor.update_control(motor, control, value)
     %Robot{robot | motors: Map.put(motors, motor_port, updated_motor)}
   end
 
   def actuate(
         %Robot{} = robot,
-        :locomotion,
+        :motor,
         tiles,
         robots
       ) do
-    updated_robot = run_motors(robot, tiles, robots -- [robot])
-    reset_motors(updated_robot)
+    Logger.info("Actuating motors: #{inspect(robot.motors)}")
+
+    run_motors(robot, tiles, robots -- [robot])
+    |> reset_motors()
   end
 
-  def actuate(robot, _intent_kind, _tiles, _robots) do
+  def actuate(robot, _actuator_type, _tiles, _robots) do
     # Do nothing for now if not locomotion
     robot
   end
@@ -107,6 +114,8 @@ defmodule AndyWorld.Robot do
 
   # Private
 
+  defp unpack_sense({sense, channel}) when is_atom(sense), do: {sense, channel}
+
   defp unpack_sense(raw_sense) do
     case String.split("#{raw_sense}", "/") do
       [sense, channel] -> {String.to_existing_atom(sense), channel}
@@ -120,15 +129,20 @@ defmodule AndyWorld.Robot do
          other_robots
        ) do
     motors = Map.values(robot.motors)
-    durations = Enum.map(motors, &Motor.run_duration(&1))
-    tick_duration = durations |> Enum.min() |> min(@largest_tick_duration)
+    durations = Enum.map(motors, &Motor.run_duration(&1)) |> Enum.filter(&(&1 != 0))
+
+    tick_duration =
+      case durations do
+        [] -> 0
+        _ -> Enum.min(durations) |> min(@largest_tick_duration)
+      end
 
     if tick_duration == 0 do
       Logger.info("Duration of actuation is 0. Do nothing.")
       robot
     else
       duration = Enum.max(durations)
-      Logger.warn("Running motors of #{robot.name} for #{duration} secs")
+      Logger.info("Running motors of #{robot.name} for #{duration} secs")
       ticks = ceil(duration / tick_duration)
       degrees_per_rotation = Application.get_env(:andy_world, :degrees_per_motor_rotation)
       tiles_per_rotation = Application.get_env(:andy_world, :tiles_per_motor_rotation)
@@ -157,6 +171,13 @@ defmodule AndyWorld.Robot do
         )
 
       new_orientation = Space.normalize_orientation(floor(position.orientation))
+
+      Logger.info(
+        "#{robot.name} is now at {#{position.x}, #{position.y}} with orientation #{
+          new_orientation
+        }"
+      )
+
       %Robot{robot | orientation: new_orientation, x: position.x, y: position.y}
     end
   end

@@ -30,8 +30,8 @@ defmodule AndyWorld.Actuating.Motor do
     rps_speed * direction
   end
 
-  def run_duration(%Motor{controls: %{time: time}}) do
-    time
+  def run_duration(%Motor{controls: controls}) do
+    Map.get(controls, :time, 0)
   end
 
   def run_duration(_motor), do: 0
