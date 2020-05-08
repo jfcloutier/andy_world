@@ -67,7 +67,6 @@ defmodule AndyWorld.Robot do
     %Robot{robot | motors: Map.put(motors, motor_port, updated_motor)}
   end
 
-
   def actuated_by?(:motor, :run_for), do: true
   def actuated_by?(_actuator_type, _command), do: false
 
@@ -261,13 +260,18 @@ defmodule AndyWorld.Robot do
     delta_x = :math.sin(Space.d2r(angle)) * distance
     new_x = x + delta_x
     new_y = y + delta_y
-    {:ok, tile} = Space.get_tile(tiles, {new_x, new_y})
 
-    if Space.occupied?(tile, other_robots) do
-      Logger.info("Can't move to new position #{inspect({new_x, new_y})}. Tile is occupied")
-      {x, y}
-    else
-      {new_x, new_y}
+    case Space.get_tile(tiles, {new_x, new_y}) do
+      {:error, :invalid} ->
+        {x, y}
+
+      {:ok, tile} ->
+        if Space.occupied?(tile, other_robots) do
+          Logger.info("Can't move to new position #{inspect({new_x, new_y})}. Tile is occupied")
+          {x, y}
+        else
+          {new_x, new_y}
+        end
     end
   end
 

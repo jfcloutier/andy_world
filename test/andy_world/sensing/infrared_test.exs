@@ -79,7 +79,7 @@ defmodule AndyWorld.Sensing.Infrared.Test do
     assert {:ok, 40} = AndyWorld.read(name: :andy, sensor_id: "in3", sense: {:beacon_distance, 1})
     AndyWorld.move_robot(name: :andy, row: 4, column: 16)
     # hidden
-    assert {:ok, -128} =
+    assert {:ok, :unknown} =
              AndyWorld.read(name: :andy, sensor_id: "in3", sense: {:beacon_distance, 1})
 
     AndyWorld.move_robot(name: :andy, row: 10, column: 16)
@@ -88,7 +88,7 @@ defmodule AndyWorld.Sensing.Infrared.Test do
 
     AndyWorld.orient_robot(name: :andy, orientation: 180)
     # looking away from the beacon
-    assert {:ok, -128} =
+    assert {:ok, :unknown} =
              AndyWorld.read(name: :andy, sensor_id: "in3", sense: {:beacon_distance, 1})
   end
 end

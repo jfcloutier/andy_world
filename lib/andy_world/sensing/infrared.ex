@@ -38,7 +38,7 @@ defmodule AndyWorld.Sensing.Infrared do
     end
   end
 
-  # 0 to 100 (percent, where 100% = 200cm), or -128 if undetected
+  # 0 to 100 (percent, where 100% = 200cm), or -:unknown if undetected
   def sense(
         robot,
         infrared_sensor,
@@ -49,7 +49,7 @@ defmodule AndyWorld.Sensing.Infrared do
       ) do
     case Space.find_beacon_tile(tiles, channel) do
       nil ->
-        -128
+        :unknown
 
       %Tile{} = beacon_tile ->
         if beacon_in_front?(
@@ -86,10 +86,10 @@ defmodule AndyWorld.Sensing.Infrared do
             (distance_cm * 0.5)
             |> round
           else
-            -128
+            :unknown
           end
         else
-          -128
+          :unknown
         end
     end
   end
