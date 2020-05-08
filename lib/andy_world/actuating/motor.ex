@@ -12,17 +12,16 @@ defmodule AndyWorld.Actuating.Motor do
             side: :center,
             # e.g. speed_mode (:rps or :dps), speed (rotation per sec  or degrees per second) and time (run duration in secs)
             controls: %{}
-
   def from(%{port: port, direction: direction, side: side, controls: controls}) do
-    %Motor{port: port, direction: direction, side: side, controls: controls}
+    %Motor{port: port, direction: direction, side: side, controls: Map.merge(default_controls(), controls)}
   end
 
   def update_control(motor, control, value) do
     %Motor{motor | controls: Map.put(motor.controls, control, value)}
   end
 
-  def reset_controls(motor) do
-    %Motor{motor | controls: %{}}
+  def reset_controls(%Motor{} = motor) do
+    %Motor{motor | controls: default_controls()}
   end
 
   def rotations_per_sec(%Motor{controls: controls, direction: direction}) do
@@ -37,6 +36,10 @@ defmodule AndyWorld.Actuating.Motor do
   def run_duration(_motor), do: 0
 
   ### Private
+
+  defp default_controls() do
+    %{time: 0, speed_mode: :rps, speed: 0}
+  end
 
   defp rps_speed(%{speed_mode: :rps, speed: speed}) do
     speed
