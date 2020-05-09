@@ -106,11 +106,14 @@ defmodule AndyWorld.Playground do
         from,
         %State{robots: robots, tiles: tiles} = state
       ) do
-
     spawn_link(fn ->
       robot = Map.fetch!(robots, robot_name)
       value = Robot.sense(robot, sensor_id, sense, tiles, Map.values(robots))
-      Logger.info("Read #{robot_name}: #{inspect(sensor_id)} #{inspect(sense)} = #{inspect value}")
+
+      Logger.info(
+        "Read #{robot_name}: #{inspect(sensor_id)} #{inspect(sense)} = #{inspect(value)}"
+      )
+
       GenServer.reply(from, {:ok, value})
     end)
 
@@ -123,7 +126,7 @@ defmodule AndyWorld.Playground do
         _from,
         %State{robots: robots, tiles: tiles} = state
       ) do
-    Logger.info("Set the #{control} of #{robot_name}'s motor #{port} to #{inspect value}")
+    Logger.info("Set the #{control} of #{robot_name}'s motor #{port} to #{inspect(value)}")
     robot = Map.fetch!(robots, robot_name)
     updated_robot = Robot.set_motor_control(robot, port, control, value)
 

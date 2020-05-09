@@ -12,8 +12,14 @@ defmodule AndyWorld.Actuating.Motor do
             side: :center,
             # e.g. speed_mode (:rps or :dps), speed (rotation per sec  or degrees per second) and time (run duration in secs)
             controls: %{}
+
   def from(%{port: port, direction: direction, side: side, controls: controls}) do
-    %Motor{port: port, direction: direction, side: side, controls: Map.merge(default_controls(), controls)}
+    %Motor{
+      port: port,
+      direction: direction,
+      side: side,
+      controls: Map.merge(default_controls(), controls)
+    }
   end
 
   def update_control(motor, control, value) do

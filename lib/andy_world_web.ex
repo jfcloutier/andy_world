@@ -23,7 +23,6 @@ defmodule AndyWorldWeb do
 
       import Plug.Conn
       import AndyWorldWeb.Gettext
-      import Phoenix.LiveView.Controller
       alias AndyWorldWeb.Router.Helpers, as: Routes
     end
   end
@@ -40,10 +39,25 @@ defmodule AndyWorldWeb do
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
 
-      import AndyWorldWeb.ErrorHelpers
-      import AndyWorldWeb.Gettext
-      import Phoenix.LiveView.Helpers
-      alias AndyWorldWeb.Router.Helpers, as: Routes
+      # Include shared imports and aliases for views
+      unquote(view_helpers())
+    end
+  end
+
+  def live_view do
+    quote do
+      use Phoenix.LiveView,
+        layout: {AndyWorldWeb.LayoutView, "live.html"}
+
+      unquote(view_helpers())
+    end
+  end
+
+  def live_component do
+    quote do
+      use Phoenix.LiveComponent
+
+      unquote(view_helpers())
     end
   end
 
@@ -60,6 +74,23 @@ defmodule AndyWorldWeb do
     quote do
       use Phoenix.Channel
       import AndyWorldWeb.Gettext
+    end
+  end
+
+  defp view_helpers do
+    quote do
+      # Use all HTML functionality (forms, tags, etc)
+      use Phoenix.HTML
+
+      # Import LiveView helpers (live_render, live_component, live_patch, etc)
+      import Phoenix.LiveView.Helpers
+
+      # Import basic rendering functionality (render, render_layout, etc)
+      import Phoenix.View
+
+      import AndyWorldWeb.ErrorHelpers
+      import AndyWorldWeb.Gettext
+      alias AndyWorldWeb.Router.Helpers, as: Routes
     end
   end
 
