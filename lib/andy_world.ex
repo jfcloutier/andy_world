@@ -3,6 +3,8 @@ defmodule AndyWorld do
   AndyWorld provides a virtual playground for simulated robots
   """
 
+  alias Phoenix.PubSub
+
   def playground() do
     :playground
   end
@@ -20,6 +22,10 @@ defmodule AndyWorld do
   def robot(robot_name) do
     {:ok, robot} = GenServer.call(playground(), {:robot, robot_name})
     robot
+  end
+
+  def broadcast(topic, payload) do
+    PubSub.broadcast(AndyWorld.PubSub, topic, {String.to_atom(topic), payload})
   end
 
   ### Test support
@@ -78,4 +84,5 @@ defmodule AndyWorld do
   def clear_robots() do
     GenServer.call(playground(), :clear_robots)
   end
+
 end

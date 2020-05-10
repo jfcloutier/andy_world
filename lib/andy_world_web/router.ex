@@ -7,7 +7,7 @@ defmodule AndyWorldWeb.Router do
     plug :fetch_live_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug(:put_root_layout, {AndyWorldWeb.LayoutView, :app})
+    plug(:put_root_layout, {AndyWorldWeb.LayoutView, :root})
   end
 
   pipeline :api do

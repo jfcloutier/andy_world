@@ -5,7 +5,21 @@ defmodule AndyWorldWeb.PlaygroundMonitor do
 
   use AndyWorldWeb, :live_view
 
+  alias Phoenix.PubSub
+  require Logger
+
   def mount(_param, _session, socket) do
-    {:ok, socket}
+    if connected?(socket), do: subscribe()
+    {:ok, assign(socket, robot_names: [])}
+  end
+
+  def handle_info({:robot_placed, %{robot: robot}}, socket) do
+    Logger.info("#{__MODULE__} robot placed #{inspect(robot.name)}")
+    {:noreply, assign(socket, robot_names: [robot.name | socket.assigns.robot_names])}
+  end
+
+  defp subscribe() do
+    ~w(robot_placed)
+    |> Enum.each(&PubSub.subscribe(AndyWorld.PubSub, &1))
   end
 end

@@ -37,10 +37,10 @@ defmodule AndyWorld.Playground do
   end
 
   # An event was broadcasted by a robot
-  # TODO - respond to {:actuated, kind} by actuating
   def handle_cast({:event, robot_name, event}, %State{robots: robots} = state) do
     robot = Map.fetch!(robots, robot_name)
     updated_robot = Robot.record_event(robot, event)
+    AndyWorld.broadcast("robot_event", %{robot: updated_robot, event: event})
     {:noreply, %State{state | robots: Map.put(robots, robot_name, updated_robot)}}
   end
 
@@ -81,6 +81,8 @@ defmodule AndyWorld.Playground do
           "#{name} placed at #{inspect(Robot.locate(robot))} with orientation #{orientation}"
         )
 
+        AndyWorld.broadcast("robot_placed", %{robot: robot, row: row, column: column})
+
         {
           :reply,
           :ok,
@@ -114,6 +116,13 @@ defmodule AndyWorld.Playground do
         "Read #{robot_name}: #{inspect(sensor_id)} #{inspect(sense)} = #{inspect(value)}"
       )
 
+      AndyWorld.broadcast("robot_sensed", %{
+        robot: robot,
+        sensor_id: sensor_id,
+        sense: sense,
+        value: value
+      })
+
       GenServer.reply(from, {:ok, value})
     end)
 
@@ -122,13 +131,20 @@ defmodule AndyWorld.Playground do
 
   # A motor control is set
   def handle_call(
-        {:set_motor_control, robot_name, port, control, value},
+        {:set_motor_control, robot_name, motor_id, control, value},
         _from,
         %State{robots: robots, tiles: tiles} = state
       ) do
-    Logger.info("Set the #{control} of #{robot_name}'s motor #{port} to #{inspect(value)}")
+    Logger.info("Set the #{control} of #{robot_name}'s motor #{motor_id} to #{inspect(value)}")
     robot = Map.fetch!(robots, robot_name)
-    updated_robot = Robot.set_motor_control(robot, port, control, value)
+    updated_robot = Robot.set_motor_control(robot, motor_id, control, value)
+
+    AndyWorld.broadcast("robot_controlled", %{
+      robot: updated_robot,
+      motor_id: motor_id,
+      control: control,
+      value: value
+    })
 
     {
       :reply,
@@ -148,7 +164,15 @@ defmodule AndyWorld.Playground do
     updated_robot =
       if Robot.actuated_by?(actuator_type, command) do
         Logger.info("Actuate #{robot.name}: #{inspect(command)} #{inspect(actuator_type)}")
-        Robot.actuate(robot, actuator_type, command, tiles, Map.values(robots))
+        actuated_robot = Robot.actuate(robot, actuator_type, command, tiles, Map.values(robots))
+
+        AndyWorld.broadcast("robot_actuated", %{
+          robot: actuated_robot,
+          actuator_type: actuator_type,
+          command: command
+        })
+
+        actuated_robot
       else
         robot
       end
