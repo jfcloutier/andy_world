@@ -2,7 +2,7 @@ defmodule AndyWorld.Robot do
   @moduledoc "What is known about a robot"
 
   alias __MODULE__
-  alias AndyWorld.Space
+  alias AndyWorld.{Space, Tile}
   alias AndyWorld.Actuating.Motor
   alias AndyWorld.Sensing.Sensor
 
@@ -46,6 +46,10 @@ defmodule AndyWorld.Robot do
 
   def move_to(robot, row: row, column: column) do
     %Robot{robot | y: row * 1.0 + 0.5, x: column * 1.0 + 0.5}
+  end
+
+  def occupies?(robot, %Tile{row: row, column: column}) do
+    occupies?(robot, row: row, column: column)
   end
 
   def occupies?(%Robot{x: x, y: y}, row: row, column: column) do

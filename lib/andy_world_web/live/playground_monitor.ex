@@ -15,7 +15,8 @@ defmodule AndyWorldWeb.PlaygroundMonitor do
 
   def handle_info({:robot_placed, %{robot: robot}}, socket) do
     Logger.info("#{__MODULE__} robot placed #{inspect(robot.name)}")
-    {:noreply, assign(socket, robot_names: [robot.name | socket.assigns.robot_names])}
+    robot_names = [robot.name | socket.assigns.robot_names] |> Enum.uniq()
+    {:noreply, assign(socket, robot_names: robot_names)}
   end
 
   defp subscribe() do

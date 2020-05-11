@@ -180,7 +180,7 @@ defmodule AndyWorld.Playground do
     {:reply, :ok, %State{state | robots: Map.put(robots, robot.name, updated_robot)}}
   end
 
-  ### TEST SUPPORT
+  ### TEST AND LIVE VIEW SUPPORT
 
   def handle_call(:tiles, _from, %State{tiles: tiles} = state) do
     {:reply, {:ok, tiles}, state}

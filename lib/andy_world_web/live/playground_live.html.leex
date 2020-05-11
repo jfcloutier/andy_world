@@ -1,1 +1,13 @@
-<div> PLAYGROUND </div>
+<div class="table-container">
+    <table class="table is-fullwidth is-bordered">
+        <%= for row <- Enum.reverse(@tiles) do %>
+            <tr>
+                <%= for tile <- row do %>
+                    <td class="<%=tile_class(tile) %>">
+                      <%= tile_content(tile) %>
+                    </td>
+                <% end %>
+            </tr>
+        <% end %>
+    </table>
+</div>
