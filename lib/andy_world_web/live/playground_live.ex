@@ -24,18 +24,19 @@ defmodule AndyWorldWeb.PlaygroundLive do
   end
 
   def tile_class(tile) do
-    text = cond do
-      tile.robot != nil -> "has-text-dark"
-      tile.obstacle_height > 0 -> "has-text-danger"
-      tile.ground_color == 6 -> "has-text-success"
-      true -> "has-text-white"
-    end
-      bg = cond do
-        tile.obstacle_height > 0 -> "has-background-danger"
-        tile.ground_color == 6 -> "has-background-success"
-        true -> "has-background-white"
+    color = tile_color(tile)
+
+    text_color =
+      cond do
+        tile.robot != nil ->
+          if tile.ambient_light <= 60, do: "has-text-white", else: "has-text-dark"
+
+        true ->
+          "has-text-#{color}"
       end
-      text <> " " <> bg
+
+    bg_color = "has-background-#{color}"
+    text_color <> " " <> bg_color
   end
 
   def tile_content(tile) do
@@ -74,4 +75,18 @@ defmodule AndyWorldWeb.PlaygroundLive do
     end
   end
 
+  defp tile_color(tile) do
+    cond do
+      tile.obstacle_height > 0 -> "danger"
+      tile.ground_color == 6 -> "success"
+      tile.ambient_light <= 10 -> "grey-darker"
+      tile.ambient_light <= 20 -> "grey-dark"
+      tile.ambient_light <= 40 -> "grey-dark"
+      tile.ambient_light <= 60 -> "grey"
+      tile.ambient_light < 80 -> "grey-lighter"
+      tile.ambient_light < 90 -> "white-ter"
+      tile.ambient_light < 100 -> "white-bis"
+      true -> "white"
+    end
+  end
 end

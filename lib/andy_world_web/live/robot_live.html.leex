@@ -1,1 +1,11 @@
-<div><%= @robot_name %> </div>
+<div class="tile is-ancestor">
+    <div class="tile is-parent is-vertical">
+        <div class="tile is-child box">
+            <div class="tags">
+                <span class="tag is-large is-info"><%= @robot_name %></span>
+                <span class="tag"><%= @robot_location %></span>
+                <span class="tag"><%= raw @robot_orientation %></span>
+            </div>
+        </div>
+    </div>
+</div>

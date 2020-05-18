@@ -1,5 +1,5 @@
-<div class="section">
-  <div class="container is-fluid">
+<div class="section container is-fluid">
+  <div>
     <div class="level">
       <div class="level-left">
         <span class="is-size-3">Andy World</span>
@@ -11,14 +11,14 @@
       </div>
     </div>
     <div class="tile is-ancestor">
-      <div class="tile is-parent is-8">
+      <div class="tile is-parent is-6">
         <div class="tile is-child">
             <%= live_render(@socket, AndyWorldWeb.PlaygroundLive, id: :playground) %>
         </div>
       </div>
       <div class="tile is-parent">
         <%= for robot_name <- @robot_names do %>
-          <div class="tile is-child">
+          <div class="tile is-child is-6">
               <%= live_render(@socket, AndyWorldWeb.RobotLive, id: robot_name) %>
           </div>
          <% end %>

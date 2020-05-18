@@ -67,7 +67,7 @@ defmodule AndyWorld.Tile do
     color
   end
 
-  defp convert_ambient("_", default_ambient), do: default_ambient
+  defp convert_ambient("_", default_ambient), do: default_ambient * 10
 
   defp convert_ambient(ambient_s, _default_ambient) do
     {ambient, ""} = Integer.parse(ambient_s)

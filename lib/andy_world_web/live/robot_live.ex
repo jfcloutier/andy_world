@@ -10,17 +10,46 @@ defmodule AndyWorldWeb.RobotLive do
 
   def mount(_params, _session, socket) do
     if connected?(socket), do: subscribe()
-   {:ok, assign(socket, robot_name: String.to_atom(socket.id))}
+    robot_name = String.to_atom(socket.id)
+
+    {:ok,
+     assign(socket,
+       robot_name: robot_name,
+       robot_location: robot_location(robot_name),
+       robot_orientation: robot_orientation(robot_name)
+     )}
   end
 
-  def handle_info({topic, payload}, socket) do
-    Logger.info("#{__MODULE__} HANDLING #{inspect topic} about #{inspect payload.robot.name}")
+  def handle_info({:robot_actuated, %{robot: robot}}, socket) do
+    if robot.name == String.to_atom(socket.id) do
+      {:noreply,
+       assign(socket,
+         robot_location: robot_location(robot.name),
+         robot_orientation: robot_orientation(robot.name)
+       )}
+    else
+      Logger.warn("Not handling actuations of #{robot.name}")
+      {:noreply, socket}
+    end
+  end
+
+  def handle_info({_topic, _payload}, socket) do
+    # Logger.info("Not handling #{inspect topic} with #{inspect payload}")
     {:noreply, socket}
   end
 
   defp subscribe() do
-    ~w(robot_placed robot_sensed robot_controlled robot_event)
+    ~w(robot_placed robot_actuated robot_sensed robot_controlled robot_event)
     |> Enum.each(&PubSub.subscribe(AndyWorld.PubSub, &1))
   end
 
+  defp robot_orientation(name) do
+    robot = AndyWorld.robot(name)
+    "#{robot.orientation}&deg;"
+  end
+
+  defp robot_location(name) do
+    robot = AndyWorld.robot(name)
+    "(#{Float.round(robot.x, 1)}, #{Float.round(robot.y, 1)})"
+  end
 end
