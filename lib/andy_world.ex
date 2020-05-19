@@ -24,6 +24,26 @@ defmodule AndyWorld do
     robot
   end
 
+  def pause_robots() do
+    {:ok, robots} = GenServer.call(playground(), :robots)
+    Enum.each(robots, &GenServer.cast({:clock, &1.node}, :pause))
+  end
+
+  def resume_robots() do
+    {:ok, robots} = GenServer.call(playground(), :robots)
+    Enum.each(robots, &GenServer.cast({:clock, &1.node}, :resume))
+  end
+
+  def pause(robot_name) do
+    {:ok, robot} = GenServer.call(playground(), {:robot, robot_name})
+    GenServer.cast({:clock, robot.node}, :pause)
+  end
+
+  def resume(robot_name) do
+    {:ok, robot} = GenServer.call(playground(), {:robot, robot_name})
+    GenServer.cast({:clock, robot.node}, :resume)
+  end
+
   def broadcast(topic, payload) do
     PubSub.broadcast(AndyWorld.PubSub, topic, {String.to_atom(topic), payload})
   end
@@ -84,5 +104,4 @@ defmodule AndyWorld do
   def clear_robots() do
     GenServer.call(playground(), :clear_robots)
   end
-
 end

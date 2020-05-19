@@ -6,7 +6,7 @@
       </div>
       <div class = "level-right">
         <p class="control">
-          <button class="button"> Restart </button>
+          <button class="button" phx-click="pause_or_resume_robots"> <%= pause_or_resume_label(@robots_paused) %> </button>
         </p>
       </div>
     </div>
