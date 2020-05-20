@@ -16,11 +16,13 @@ defmodule AndyWorldWeb.RobotLive do
      assign(socket,
        robot_name: robot_name,
        robot_location: robot_location(robot_name),
-       robot_orientation: robot_orientation(robot_name)
+       robot_orientation: robot_orientation(robot_name),
+       robot_words: "Ready!",
+       robot_sensings: []
      )}
   end
 
-  def handle_info({:robot_actuated, %{robot: robot}}, socket) do
+  def handle_info({:robot_actuated, %{robot: robot, command: :run_for}}, socket) do
     if robot.name == String.to_atom(socket.id) do
       {:noreply,
        assign(socket,
@@ -28,7 +30,37 @@ defmodule AndyWorldWeb.RobotLive do
          robot_orientation: robot_orientation(robot.name)
        )}
     else
-      Logger.warn("Not handling actuations of #{robot.name}")
+      {:noreply, socket}
+    end
+  end
+
+  def handle_info({:robot_actuated, %{robot: robot, command: :speak, params: words}}, socket) do
+    if robot.name == String.to_atom(socket.id) do
+      {:noreply,
+       assign(socket,
+         robot_words: words
+       )}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_info(
+        {:robot_sensed,
+         %{
+           robot: robot,
+           sensor_id: sensor_id,
+           sense: sense,
+           value: value
+         }},
+        socket
+      ) do
+    if robot.name == String.to_atom(socket.id) do
+      sensings = socket.assigns.robot_sensings
+      sensor_type = Map.fetch!(robot.sensors, sensor_id) |> Map.fetch!(:type)
+      updated_sensings = Keyword.put(sensings, :"#{sensor_type}/#{sense}", "#{inspect value}") |> Enum.sort()
+      {:noreply, assign(socket, robot_sensings: updated_sensings)}
+    else
       {:noreply, socket}
     end
   end

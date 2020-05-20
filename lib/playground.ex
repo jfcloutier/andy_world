@@ -77,7 +77,7 @@ defmodule AndyWorld.Playground do
             column: column
           )
 
-        Logger.warn(
+        Logger.info(
           "#{name} placed at #{inspect(Robot.locate(robot))} with orientation #{orientation}"
         )
 
@@ -115,7 +115,6 @@ defmodule AndyWorld.Playground do
       Logger.info(
         "Read #{robot_name}: #{inspect(sensor_id)} #{inspect(sense)} = #{inspect(value)}"
       )
-
       AndyWorld.broadcast("robot_sensed", %{
         robot: robot,
         sensor_id: sensor_id,
@@ -155,28 +154,28 @@ defmodule AndyWorld.Playground do
 
   # Run a robot's motors
   def handle_call(
-        {:actuate, robot_name, actuator_type, command},
+        {:actuate, robot_name, actuator_type, command, params},
         _from,
         %{robots: robots, tiles: tiles} = state
       ) do
     robot = Map.fetch!(robots, robot_name)
 
     updated_robot =
-      if Robot.actuated_by?(actuator_type, command) do
+      if Robot.changed_by?(actuator_type, command) do
         Logger.info("Actuate #{robot.name}: #{inspect(command)} #{inspect(actuator_type)}")
-        actuated_robot = Robot.actuate(robot, actuator_type, command, tiles, Map.values(robots))
 
-        AndyWorld.broadcast("robot_actuated", %{
-          robot: actuated_robot,
-          actuator_type: actuator_type,
-          command: command
-        })
-
+        actuated_robot =
+          Robot.actuate(robot, actuator_type, command, params, tiles, Map.values(robots))
         actuated_robot
       else
         robot
       end
-
+      AndyWorld.broadcast("robot_actuated", %{
+        robot: updated_robot,
+        actuator_type: actuator_type,
+        command: command,
+        params: params
+      })
     {:reply, :ok, %State{state | robots: Map.put(robots, robot.name, updated_robot)}}
   end
 

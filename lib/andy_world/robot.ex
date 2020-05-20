@@ -71,13 +71,14 @@ defmodule AndyWorld.Robot do
     %Robot{robot | motors: Map.put(motors, motor_port, updated_motor)}
   end
 
-  def actuated_by?(:motor, :run_for), do: true
-  def actuated_by?(_actuator_type, _command), do: false
+  def changed_by?(:motor, :run_for), do: true
+  def changed_by?(_actuator_type, _command), do: false
 
   def actuate(
         %Robot{} = robot,
         :motor,
         :run_for,
+        _params,
         tiles,
         robots
       ) do
@@ -85,7 +86,7 @@ defmodule AndyWorld.Robot do
     |> reset_motors()
   end
 
-  def actuate(robot, _actuator_type, _command, _tiles, _robots) do
+  def actuate(robot, _actuator_type, _command, _params, _tiles, _robots) do
     # Do nothing for now if not locomotion
     robot
   end
@@ -111,7 +112,6 @@ defmodule AndyWorld.Robot do
         ])
     end
   end
-
   def record_event(%Robot{events: events} = robot, event) do
     max_events_remembered = Application.get_env(:andy_world, :max_events_remembered, 100)
     updated_events = [event | events] |> Enum.take(max_events_remembered)
@@ -178,7 +178,7 @@ defmodule AndyWorld.Robot do
 
       new_orientation = Space.normalize_orientation(floor(position.orientation))
 
-      Logger.warn(
+      Logger.info(
         "#{robot.name} is now at {#{position.x}, #{position.y}} with orientation #{
           new_orientation
         }"
