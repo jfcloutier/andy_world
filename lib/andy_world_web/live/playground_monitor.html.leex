@@ -6,7 +6,9 @@
       <div class = "level-right">
         <p class="control">
           <button class="button" phx-click="slow_down"> <%= slow_down_label(@time_dilatation) %> </button>
-          <button class="button" phx-click="normal_speed"> Normal speed </button> 
+          <%= if @time_dilatation != 0 do %>
+            <button class="button" phx-click="normal_speed"> Normal speed </button> 
+          <% end %>
           <button class="button" phx-click="pause_or_resume_robots"> <%= pause_or_resume_label(@robots_paused) %> </button>
         </p>
       </div>
