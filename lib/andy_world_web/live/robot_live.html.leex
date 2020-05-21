@@ -7,6 +7,9 @@
                 <span class="tag"><%= raw @robot_orientation %></span>
                 <span class="tag is-dark is-small"><%= @robot_words %></span>
             </div>
+            <div class="tags">
+                <span class="tag is-warning is-small"><%= @robot_intent %></span>
+            </div>
         </div>
         <div class="tile is-child box">
            <div class="field is-grouped is-grouped-multiline">
@@ -15,6 +18,18 @@
                     <div class="tags has-addons">
                         <span class="tag"><%= sensor_sense %></span>
                         <span class="tag is-success is-light"><%= value %></span>
+                    </div>
+                </div>
+            <% end %>
+            </div>
+        </div>
+         <div class="tile is-child box">
+           <div class="field is-grouped is-grouped-multiline">
+            <%= for {control, value} <- @robot_controls do %>
+                <div class="control">
+                    <div class="tags has-addons">
+                        <span class="tag"><%= control %></span>
+                        <span class="tag is-warning is-light"><%= value %></span>
                     </div>
                 </div>
             <% end %>

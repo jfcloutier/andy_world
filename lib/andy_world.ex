@@ -39,6 +39,11 @@ defmodule AndyWorld do
     GenServer.cast({:clock, robot.node}, :pause)
   end
 
+  def slow_down_robots(dilation) do
+    {:ok, robots} = GenServer.call(playground(), :robots)
+    Enum.each(robots, &GenServer.cast({:clock, &1.node}, {:dilate, dilation}))
+  end
+
   def resume(robot_name) do
     {:ok, robot} = GenServer.call(playground(), {:robot, robot_name})
     GenServer.cast({:clock, robot.node}, :resume)
@@ -104,4 +109,13 @@ defmodule AndyWorld do
   def clear_robots() do
     GenServer.call(playground(), :clear_robots)
   end
+
+  def prettify(map) when is_map(map) do
+    strings = for {key, value} <- map, do: "#{key}: #{prettify(value)}"
+    Enum.join(strings, ", ")
+  end
+
+  def prettify(term) when is_binary(term), do: term
+
+  def prettify(term), do: inspect(term)
 end

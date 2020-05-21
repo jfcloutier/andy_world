@@ -112,6 +112,7 @@ defmodule AndyWorld.Robot do
         ])
     end
   end
+
   def record_event(%Robot{events: events} = robot, event) do
     max_events_remembered = Application.get_env(:andy_world, :max_events_remembered, 100)
     updated_events = [event | events] |> Enum.take(max_events_remembered)

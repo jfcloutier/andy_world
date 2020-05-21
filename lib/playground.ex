@@ -115,6 +115,7 @@ defmodule AndyWorld.Playground do
       Logger.info(
         "Read #{robot_name}: #{inspect(sensor_id)} #{inspect(sense)} = #{inspect(value)}"
       )
+
       AndyWorld.broadcast("robot_sensed", %{
         robot: robot,
         sensor_id: sensor_id,
@@ -166,16 +167,19 @@ defmodule AndyWorld.Playground do
 
         actuated_robot =
           Robot.actuate(robot, actuator_type, command, params, tiles, Map.values(robots))
+
         actuated_robot
       else
         robot
       end
-      AndyWorld.broadcast("robot_actuated", %{
-        robot: updated_robot,
-        actuator_type: actuator_type,
-        command: command,
-        params: params
-      })
+
+    AndyWorld.broadcast("robot_actuated", %{
+      robot: updated_robot,
+      actuator_type: actuator_type,
+      command: command,
+      params: params
+    })
+
     {:reply, :ok, %State{state | robots: Map.put(robots, robot.name, updated_robot)}}
   end
 

@@ -1,28 +1,28 @@
 <div class="section container is-fluid">
-  <div>
     <div class="level">
       <div class="level-left">
         <span class="is-size-3">Andy World</span>
       </div>
       <div class = "level-right">
         <p class="control">
+          <button class="button" phx-click="slow_down"> <%= slow_down_label(@time_dilatation) %> </button>
+          <button class="button" phx-click="normal_speed"> Normal speed </button> 
           <button class="button" phx-click="pause_or_resume_robots"> <%= pause_or_resume_label(@robots_paused) %> </button>
         </p>
       </div>
     </div>
     <div class="tile is-ancestor">
-      <div class="tile is-parent is-6">
+      <div class="tile is-parent is-4">
         <div class="tile is-child">
             <%= live_render(@socket, AndyWorldWeb.PlaygroundLive, id: :playground) %>
         </div>
       </div>
-      <div class="tile is-parent">
+      <div class="tile is-parent is-8">
         <%= for robot_name <- @robot_names do %>
-          <div class="tile is-child is-6">
+          <div class="tile is-child">
               <%= live_render(@socket, AndyWorldWeb.RobotLive, id: robot_name) %>
           </div>
          <% end %>
       </div>
     </div>
-  </div>
 </div>

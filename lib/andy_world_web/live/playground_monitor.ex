@@ -8,10 +8,12 @@ defmodule AndyWorldWeb.PlaygroundMonitor do
   alias Phoenix.PubSub
   require Logger
 
+  @slow_down_increment 2
+
   @impl true
   def mount(_param, _session, socket) do
     if connected?(socket), do: subscribe()
-    {:ok, assign(socket, robot_names: [], robots_paused: false)}
+    {:ok, assign(socket, robot_names: [], robots_paused: false, time_dilatation: 0)}
   end
 
   @impl true
@@ -28,8 +30,23 @@ defmodule AndyWorldWeb.PlaygroundMonitor do
     {:noreply, assign(socket, robots_paused: not robots_paused?)}
   end
 
+  def handle_event("slow_down", _params, socket) do
+    new_dilatation = socket.assigns.time_dilatation + @slow_down_increment
+    AndyWorld.slow_down_robots(new_dilatation)
+    {:noreply, assign(socket, time_dilatation: new_dilatation)}
+  end
+
+  def handle_event("normal_speed", _params, socket) do
+    AndyWorld.slow_down_robots(0)
+    {:noreply, assign(socket, time_dilatation: 0)}
+  end
+
   def pause_or_resume_label(true), do: "Resume"
   def pause_or_resume_label(false), do: "Pause"
+
+  def slow_down_label(time_dilatation) do
+    "Slow down #{time_dilatation + @slow_down_increment}X"
+  end
 
   defp subscribe() do
     ~w(robot_placed)
