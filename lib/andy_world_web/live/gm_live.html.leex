@@ -22,8 +22,11 @@
                             <% end %>
                         </select>
                     </div> 
-                </div>         
-            </div
+                </div>    
+                <div class="control">
+                    <label class="label"> - current round is <%= round_status_label(@round_status) %> </label>
+                </div>     
+            </div>
         </div>
         <div class="tile is-child box">
            <div class="field is-grouped is-grouped-multiline">
@@ -31,7 +34,7 @@
                 <div class="control">
                     <div class="tags has-addons">
                         <span class="tag"><%= tag_label(:prediction, :in) %></span>
-                        <span class="tag <%= tag_color(:prediction, :in) %> is-light"><%= prediction_in.label %></span>
+                        <span class="tag <%= tag_color(:prediction, :in, @round_status) %>"><%= prediction_in.label %></span>
                     </div>
                 </div>
             <% end %>
@@ -43,7 +46,7 @@
                 <div class="control">
                     <div class="tags has-addons">
                         <span class="tag"><%= tag_label(perception.type, :perception) %></span>
-                        <span class="tag <%= tag_color(perception.type, :perception) %> is-light"><%= perception.label %></span>
+                        <span class="tag <%= tag_color(perception.type, :perception, @round_status) %>"><%= perception.label %></span>
                     </div>
                 </div>
             <% end %>
@@ -55,7 +58,7 @@
                 <div class="control">
                     <div class="tags has-addons">
                         <span class="tag">belief</span>
-                        <span class="tag is-success is-light"><%= belief.label %></span>
+                        <span class="tag <%= tag_color(:belief, :out, @round_status) %>"><%= belief.label %></span>
                     </div>
                 </div>
             <% end %>
@@ -67,7 +70,19 @@
                 <div class="control">
                     <div class="tags has-addons">
                         <span class="tag"><%= tag_label(:prediction_error, :out) %></span>
-                        <span class="tag <%= tag_color(:prediction_error, :out) %> is-light"><%= prediction_error_out.label %></span>
+                        <span class="tag <%= tag_color(:prediction_error, :out, @round_status) %>"><%= prediction_error_out.label %></span>
+                    </div>
+                </div>
+            <% end %>
+           </div>
+        </div>
+      <div class="tile is-child box">
+           <div class="field is-grouped is-grouped-multiline">
+            <%= for course_of_action <- @courses_of_action do %>
+                <div class="control">
+                    <div class="tags has-addons">
+                        <span class="tag"><%= tag_label(:course_of_action, :now) %></span>
+                        <span class="tag <%= tag_color(:course_of_action, :now, @round_status) %>"><%= course_of_action.label %></span>
                     </div>
                 </div>
             <% end %>

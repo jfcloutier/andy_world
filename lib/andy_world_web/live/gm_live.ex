@@ -23,7 +23,7 @@ defmodule AndyWorldWeb.GMLive do
        predictions_in: [],
        prediction_errors_out: [],
        beliefs: [],
-       coas: []
+       courses_of_action: []
      )}
   end
 
@@ -38,39 +38,30 @@ defmodule AndyWorldWeb.GMLive do
         do: socket.assigns.selected_gm_name,
         else: List.first(all_gm_names)
 
-    updated_socket =
-      assign(socket,
+    updated_assigns =
+      reset_gm(robot_name, gm_name)
+      |> Keyword.merge(
         selected_robot_name: robot_name,
         all_gm_names: all_gm_names,
-        # TODO - grab the current state of the gm's current round
         selected_gm_name: gm_name,
-        round_status: :unknown,
-        predictions_in: [],
-        perceptions: [],
-        prediction_errors_out: [],
-        beliefs: [],
-        coas: []
+        round_status: :unknown
       )
 
-    {:noreply, updated_socket}
+    {:noreply, assign(socket, updated_assigns)}
   end
 
   def handle_event("gm_selected", %{"value" => gm_name_s}, socket) do
     Logger.warn("GM SELECTED #{gm_name_s}")
     gm_name = String.to_existing_atom(gm_name_s)
-    # TODO - grab the current state of the gm's current round
-    updated_socket =
-      assign(socket,
+    robot_name = socket.assigns.selected_robot_name
+    updated_assigns =
+      reset_gm(robot_name, gm_name)
+      |> Keyword.merge(
         selected_gm_name: gm_name,
-        round_status: :unknown,
-        predictions_in: [],
-        perceptions: [],
-        prediction_errors_out: [],
-        beliefs: [],
-        coas: []
+        round_status: :unknown
       )
 
-    {:noreply, updated_socket}
+    {:noreply, assign(socket, updated_assigns)}
   end
 
   @impl true
@@ -146,6 +137,22 @@ defmodule AndyWorldWeb.GMLive do
   end
 
   def handle_info(
+    {:robot_event,
+     %{
+       robot: robot,
+       event: {:courses_of_action, %{gm_name: gm_name, list: list}}
+     }},
+    socket
+  ) do
+if socket.assigns.selected_robot_name == robot.name and
+     gm_name == socket.assigns.selected_gm_name do
+  {:noreply, assign(socket, courses_of_action: list)}
+else
+  {:noreply, socket}
+end
+end
+
+  def handle_info(
         {:robot_event,
          %{
            robot: robot,
@@ -162,6 +169,34 @@ defmodule AndyWorldWeb.GMLive do
     end
   end
 
+  def handle_info(
+        {:robot_event, %{robot: robot, event: {round_status, gm_name}}},
+        socket
+      )
+      when round_status in [
+             :round_initiating,
+             :round_running,
+             :round_completing,
+             :round_completed
+           ] do
+    if socket.assigns.selected_robot_name == robot.name and
+         gm_name == socket.assigns.selected_gm_name do
+      updated_assigns =
+        case round_status do
+          :round_initiating ->
+            reset_gm(robot.name, gm_name)
+
+          _other ->
+            []
+        end
+        |> Keyword.merge(round_status: round_status)
+
+      {:noreply, assign(socket, updated_assigns)}
+    else
+      {:noreply, socket}
+    end
+  end
+
   def handle_info({_topic, _payload}, socket) do
     # Logger.info("IGNORING #{inspect(topic)} with #{inspect(payload)}")
     {:noreply, socket}
@@ -169,15 +204,25 @@ defmodule AndyWorldWeb.GMLive do
 
   ### PRIVATE
 
-  defp tag_label(:prediction, :in), do: "prediction-in"
-  defp tag_label(:prediction, :perception), do: "prediction"
-  defp tag_label(:prediction_error, :perception), do: "prediction-error"
-  defp tag_label(:prediction_error, :out), do: "prediction-error-out"
+  defp tag_label(:prediction, :in), do: "prediction in"
+  defp tag_label(:prediction, :perception), do: "perception"
+  defp tag_label(:prediction_error, :perception), do: "perception"
+  defp tag_label(:prediction_error, :out), do: "prediction error out"
+  defp tag_label(:course_of_action, _), do: "actions"
 
-  defp tag_color(:prediction, :in), do: "is-primary"
-  defp tag_color(:prediction, :perception), do: "is-warning"
-  defp tag_color(:prediction_error, :perception), do: "is-danger"
-  defp tag_color(:prediction_error, :out), do: "is-info"
+  defp tag_color(:prediction, :in, _), do: "is-primary is-light"
+  defp tag_color(:prediction, :perception, _), do: "is-warning is-light"
+  defp tag_color(:prediction_error, :perception, _), do: "is-danger is-light"
+  defp tag_color(:prediction_error, :out, _), do: "is-danger is-light"
+  defp tag_color(:belief, _, _), do: "is-success is-light"
+  defp tag_color(:course_of_action, _, :round_completing), do: "is-success is-light"
+  defp tag_color(:course_of_action, _, _), do: "is-light"
+
+  defp round_status_label(:not_started), do: ("not started")
+  defp round_status_label(:round_initiating), do: ("initiating")
+  defp round_status_label(:round_running), do: ("running")
+  defp round_status_label(:round_completing), do: ("completing")
+  defp round_status_label(:round_completed), do: ("completed")
 
   defp all_gm_names(robot_name) do
     gm_tree = AndyWorld.gm_tree(robot_name)
@@ -192,4 +237,8 @@ defmodule AndyWorldWeb.GMLive do
     |> Enum.each(&PubSub.subscribe(AndyWorld.PubSub, &1))
   end
 
- end
+  defp reset_gm(_robot_name, _gm_name) do
+    # TODO - grab the current state of the gm's current round
+    [predictions_in: [], perceptions: [], beliefs: [], prediction_errors_out: []]
+  end
+end

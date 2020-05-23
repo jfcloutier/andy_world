@@ -14,9 +14,12 @@
       </div>
     </div>
     <div class="tile is-ancestor">
-      <div class="tile is-parent is-4">
+      <div class="tile is-parent is-vertical is-4">
         <div class="tile is-child">
             <%= live_render(@socket, AndyWorldWeb.PlaygroundLive, id: :playground) %>
+        </div>
+         <div class="tile is-child">
+            <label class="label"> GMs PNG here </label>
         </div>
       </div>
       <div class="tile is-parent is-vertical is-8">
