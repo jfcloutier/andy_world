@@ -13,7 +13,15 @@ defmodule AndyWorldWeb.PlaygroundMonitor do
   @impl true
   def mount(_param, _session, socket) do
     if connected?(socket), do: subscribe()
-    {:ok, assign(socket, robot_names: [], robots_paused: false, time_dilatation: 0)}
+
+    {:ok,
+     assign(socket,
+       robot_names: [],
+       robots_paused: false,
+       time_dilatation: 0,
+       gm_id_counter: 1,
+       gm_ids: [:gm_1]
+     )}
   end
 
   @impl true
@@ -39,6 +47,27 @@ defmodule AndyWorldWeb.PlaygroundMonitor do
   def handle_event("normal_speed", _params, socket) do
     AndyWorld.slow_down_robots(0)
     {:noreply, assign(socket, time_dilatation: 0)}
+  end
+
+  def handle_event("more_gms", _params, socket) do
+    gm_ids = socket.assigns.gm_ids
+    gm_id_counter_inc = socket.assigns.gm_id_counter + 1
+    new_gm_id = :"gm_#{gm_id_counter_inc}"
+    {:noreply, assign(socket, gm_id_counter: gm_id_counter_inc, gm_ids: gm_ids ++ [new_gm_id])}
+  end
+
+  def handle_event("fewer_gms", _params, socket) do
+    gm_ids = socket.assigns.gm_ids
+    count = Enum.count(gm_ids)
+
+    updated_gm_ids =
+      if count > 1 do
+        List.delete_at(gm_ids, count - 1)
+      else
+        gm_ids
+      end
+
+    {:noreply, assign(socket, gm_ids: updated_gm_ids)}
   end
 
   def pause_or_resume_label(true), do: "Resume"

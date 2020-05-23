@@ -5,6 +5,12 @@
       </div>
       <div class = "level-right">
         <p class="control">
+          <%= if Enum.count(@gm_ids) == 1 and Enum.count(@robot_names) > 0 do %>
+            <button class="button" phx-click="more_gms">More GMs</button>
+          <% end %>
+          <%= if Enum.count(@gm_ids) > 1 do %>
+            <button class="button" phx-click="fewer_gms">Fewer GMs</button>
+          <% end %>
           <button class="button" phx-click="slow_down"> <%= slow_down_label(@time_dilatation) %> </button>
           <%= if @time_dilatation != 0 do %>
             <button class="button" phx-click="normal_speed"> Normal speed </button> 
@@ -32,8 +38,15 @@
                 <% end %>
               </div>
           </div>
+          <% gm_width = if Enum.count(@gm_ids) == 1, do: "", else: "is-6" %>
           <div class="tile is-child">
-            <%= live_render(@socket, AndyWorldWeb.GMLive, id: :gm) %>
+            <div class="tile is-parent">
+              <%= for gm_id <- @gm_ids do %>
+                <div class="tile is_child <%= gm_width %>">
+                  <%= live_render(@socket, AndyWorldWeb.GMLive, id: gm_id) %>
+                </div>
+              <% end %>
+            </div>
           </div>
        </div>
     </div>

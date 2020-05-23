@@ -1,9 +1,9 @@
 
  <%= if @all_robot_names != [] do %>
-    <div class="tile is-parent is-vertical is-12 has-background-white-ter">
-        <div class="tile is-child is-12">
+    <div class="tile is-parent is-vertical">
+        <div class="tile is-child">
             <div class="field is-grouped">
-                <div class="control"><label class="label"> Looking at generative model </label></div>
+                <div class="control"><label class="label"> Generative model </label></div>
                 <div class="control">
                     <div class="select is-small">
                         <select name="generative_models" id="generative_models" phx-click="gm_selected">
@@ -13,7 +13,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="control"><label class="label"> of robot </label></div>
+                <div class="control"><label class="label"> of </label></div>
                 <div class="control">
                     <div class="select is-small">
                         <select name="robots" id="cars" phx-click="robot_selected">
@@ -24,7 +24,7 @@
                     </div> 
                 </div>    
                 <div class="control">
-                    <label class="label"> - current round is <%= round_status_label(@round_status) %> </label>
+                    <span> Current round is <%= round_status_label(@round_status) %> </span>
                 </div>     
             </div>
         </div>
@@ -32,7 +32,7 @@
            <div class="field is-grouped is-grouped-multiline">
             <%= for prediction_in <- @predictions_in do %>
                 <div class="control">
-                    <div class="tags has-addons">
+                    <div class="tags has-addons is-small">
                         <span class="tag"><%= tag_label(:prediction, :in) %></span>
                         <span class="tag <%= tag_color(:prediction, :in, @round_status) %>"><%= prediction_in.label %></span>
                     </div>
@@ -44,7 +44,7 @@
            <div class="field is-grouped is-grouped-multiline">
             <%= for perception <- @perceptions do %>
                 <div class="control">
-                    <div class="tags has-addons">
+                    <div class="tags has-addons is-small">
                         <span class="tag"><%= tag_label(perception.type, :perception) %></span>
                         <span class="tag <%= tag_color(perception.type, :perception, @round_status) %>"><%= perception.label %></span>
                     </div>
@@ -56,7 +56,7 @@
            <div class="field is-grouped is-grouped-multiline">
             <%= for belief <- @beliefs do %>
                 <div class="control">
-                    <div class="tags has-addons">
+                    <div class="tags has-addons is-small">
                         <span class="tag">belief</span>
                         <span class="tag <%= tag_color(:belief, :out, @round_status) %>"><%= belief.label %></span>
                     </div>
@@ -68,7 +68,7 @@
            <div class="field is-grouped is-grouped-multiline">
             <%= for prediction_error_out <- @prediction_errors_out do %>
                 <div class="control">
-                    <div class="tags has-addons">
+                    <div class="tags has-addons is-small">
                         <span class="tag"><%= tag_label(:prediction_error, :out) %></span>
                         <span class="tag <%= tag_color(:prediction_error, :out, @round_status) %>"><%= prediction_error_out.label %></span>
                     </div>
@@ -80,7 +80,7 @@
            <div class="field is-grouped is-grouped-multiline">
             <%= for course_of_action <- @courses_of_action do %>
                 <div class="control">
-                    <div class="tags has-addons">
+                    <div class="tags has-addons is-small">
                         <span class="tag"><%= tag_label(:course_of_action, :now) %></span>
                         <span class="tag <%= tag_color(:course_of_action, :now, @round_status) %>"><%= course_of_action.label %></span>
                     </div>

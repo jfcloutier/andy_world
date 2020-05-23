@@ -11,13 +11,15 @@ defmodule AndyWorldWeb.GMLive do
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket), do: subscribe()
-
+    all_robot_names = all_robot_names()
+    selected_robot_name = default_selected_robot_name(all_robot_names)
+    all_gm_names = all_gm_names(selected_robot_name)
     {:ok,
      assign(socket,
-       all_robot_names: [],
-       selected_robot_name: nil,
-       all_gm_names: [],
-       selected_gm_name: nil,
+       all_robot_names: all_robot_names,
+       selected_robot_name: selected_robot_name,
+       all_gm_names: all_gm_names,
+       selected_gm_name: default_selected_gm_name(all_gm_names),
        round_status: :not_started,
        perceptions: [],
        predictions_in: [],
@@ -204,6 +206,22 @@ end
 
   ### PRIVATE
 
+  defp all_robot_names() do
+    for robot <- AndyWorld.robots(), do: robot.name
+  end
+
+  defp default_selected_robot_name([]), do: nil
+  defp default_selected_robot_name([first | _]), do: first
+
+  defp all_gm_names(nil), do: []
+  defp all_gm_names(robot_name) do
+    gm_tree = AndyWorld.gm_tree(robot_name)
+    Map.keys(gm_tree) |> Enum.sort()
+  end
+
+  defp default_selected_gm_name([]), do: nil
+  defp default_selected_gm_name([first | _]), do: first
+
   defp tag_label(:prediction, :in), do: "prediction in"
   defp tag_label(:prediction, :perception), do: "perception"
   defp tag_label(:prediction_error, :perception), do: "perception"
@@ -218,16 +236,13 @@ end
   defp tag_color(:course_of_action, _, :round_completing), do: "is-success is-light"
   defp tag_color(:course_of_action, _, _), do: "is-light"
 
-  defp round_status_label(:not_started), do: ("not started")
+  defp round_status_label(:unknown), do: ("...")
+ defp round_status_label(:not_started), do: ("not started")
   defp round_status_label(:round_initiating), do: ("initiating")
   defp round_status_label(:round_running), do: ("running")
   defp round_status_label(:round_completing), do: ("completing")
   defp round_status_label(:round_completed), do: ("completed")
 
-  defp all_gm_names(robot_name) do
-    gm_tree = AndyWorld.gm_tree(robot_name)
-    Map.keys(gm_tree) |> Enum.sort()
-  end
 
   defp option_selected(name, name), do: "selected=selected"
   defp option_selected(_name, _other), do: ""
