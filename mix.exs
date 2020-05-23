@@ -20,7 +20,7 @@ defmodule AndyWorld.MixProject do
   def application do
     [
       mod: {AndyWorld.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :stream_data]
     ]
   end
 
@@ -44,7 +44,9 @@ defmodule AndyWorld.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:html_entities, ">= 0.0.0", only: :test}
+      {:html_entities, ">= 0.0.0", only: :test},
+      {:graphvix, "~> 1.0.0"},
+      {:stream_data, "~> 0.1"}
     ]
   end
 

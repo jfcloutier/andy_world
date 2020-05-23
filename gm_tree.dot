@@ -1,0 +1,39 @@
+digraph G {
+
+  v0 [label="avoiding_obstacle",color="blue",shape="box"]
+  v1 [label="being",color="blue",shape="box"]
+  v2 [label="clearance",color="blue",shape="box"]
+  v3 [label="collision_course_with_other",color="blue",shape="box"]
+  v4 [label="danger",color="blue",shape="box"]
+  v5 [label="eating",color="blue",shape="box"]
+  v6 [label="food_approach",color="blue",shape="box"]
+  v7 [label="freedom",color="blue",shape="box"]
+  v8 [label="hunger",color="blue",shape="box"]
+  v9 [label="intentions_of_other",color="red",shape="box"]
+  v10 [label="lighting",color="blue",shape="box"]
+  v11 [label="observing_other",color="blue",shape="box"]
+  v12 [label="obstacle_approach",color="blue",shape="box"]
+  v13 [label="obstacle_distance",color="blue",shape="box"]
+  v14 [label="seeking_food",color="blue",shape="box"]
+  v15 [label="food_location",color="blue",shape="box"]
+
+  v0 -> v12
+  v0 -> v13
+  v1 -> v4
+  v1 -> v8
+  v1 -> v7
+  v2 -> v0
+  v2 -> v3
+  v4 -> v2
+  v4 -> v10
+  v4 -> v9
+  v5 -> v14
+  v6 -> v9
+  v6 -> v15
+  v8 -> v5
+  v9 -> v11
+  v14 -> v6
+  v14 -> v15
+  v14 -> v11
+
+}

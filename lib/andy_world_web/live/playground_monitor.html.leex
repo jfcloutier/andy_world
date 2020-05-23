@@ -25,7 +25,7 @@
             <%= live_render(@socket, AndyWorldWeb.PlaygroundLive, id: :playground) %>
         </div>
          <div class="tile is-child">
-            <label class="label"> GMs PNG here </label>
+            <%= live_render(@socket, AndyWorldWeb.GMTreeLive, id: :gm_tree) %>
         </div>
       </div>
       <div class="tile is-parent is-vertical is-8">

@@ -14,6 +14,7 @@ defmodule AndyWorldWeb.GMLive do
     all_robot_names = all_robot_names()
     selected_robot_name = default_selected_robot_name(all_robot_names)
     all_gm_names = all_gm_names(selected_robot_name)
+
     {:ok,
      assign(socket,
        all_robot_names: all_robot_names,
@@ -49,6 +50,7 @@ defmodule AndyWorldWeb.GMLive do
         round_status: :unknown
       )
 
+    AndyWorld.broadcast("robot_selected", robot_name)
     {:noreply, assign(socket, updated_assigns)}
   end
 
@@ -56,6 +58,7 @@ defmodule AndyWorldWeb.GMLive do
     Logger.warn("GM SELECTED #{gm_name_s}")
     gm_name = String.to_existing_atom(gm_name_s)
     robot_name = socket.assigns.selected_robot_name
+
     updated_assigns =
       reset_gm(robot_name, gm_name)
       |> Keyword.merge(
@@ -63,6 +66,7 @@ defmodule AndyWorldWeb.GMLive do
         round_status: :unknown
       )
 
+    AndyWorld.broadcast("gm_selected", gm_name)
     {:noreply, assign(socket, updated_assigns)}
   end
 
@@ -79,6 +83,8 @@ defmodule AndyWorldWeb.GMLive do
       if selected_gm_name == nil, do: all_gm_names(robot_name), else: socket.assigns.all_gm_names
 
     gm_name = if selected_gm_name == nil, do: List.first(gm_names), else: selected_gm_name
+    AndyWorld.broadcast("gm_selected", gm_name)
+    AndyWorld.broadcast("robot_selected", robot_name)
 
     {:noreply,
      assign(socket,
@@ -139,20 +145,20 @@ defmodule AndyWorldWeb.GMLive do
   end
 
   def handle_info(
-    {:robot_event,
-     %{
-       robot: robot,
-       event: {:courses_of_action, %{gm_name: gm_name, list: list}}
-     }},
-    socket
-  ) do
-if socket.assigns.selected_robot_name == robot.name and
-     gm_name == socket.assigns.selected_gm_name do
-  {:noreply, assign(socket, courses_of_action: list)}
-else
-  {:noreply, socket}
-end
-end
+        {:robot_event,
+         %{
+           robot: robot,
+           event: {:courses_of_action, %{gm_name: gm_name, list: list}}
+         }},
+        socket
+      ) do
+    if socket.assigns.selected_robot_name == robot.name and
+         gm_name == socket.assigns.selected_gm_name do
+      {:noreply, assign(socket, courses_of_action: list)}
+    else
+      {:noreply, socket}
+    end
+  end
 
   def handle_info(
         {:robot_event,
@@ -214,6 +220,7 @@ end
   defp default_selected_robot_name([first | _]), do: first
 
   defp all_gm_names(nil), do: []
+
   defp all_gm_names(robot_name) do
     gm_tree = AndyWorld.gm_tree(robot_name)
     Map.keys(gm_tree) |> Enum.sort()
@@ -236,13 +243,12 @@ end
   defp tag_color(:course_of_action, _, :round_completing), do: "is-success is-light"
   defp tag_color(:course_of_action, _, _), do: "is-light"
 
-  defp round_status_label(:unknown), do: ("...")
- defp round_status_label(:not_started), do: ("not started")
-  defp round_status_label(:round_initiating), do: ("initiating")
-  defp round_status_label(:round_running), do: ("running")
-  defp round_status_label(:round_completing), do: ("completing")
-  defp round_status_label(:round_completed), do: ("completed")
-
+  defp round_status_label(:unknown), do: "..."
+  defp round_status_label(:not_started), do: "not started"
+  defp round_status_label(:round_initiating), do: "initiating"
+  defp round_status_label(:round_running), do: "running"
+  defp round_status_label(:round_completing), do: "completing"
+  defp round_status_label(:round_completed), do: "completed"
 
   defp option_selected(name, name), do: "selected=selected"
   defp option_selected(_name, _other), do: ""

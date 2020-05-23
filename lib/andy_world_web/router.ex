@@ -18,6 +18,7 @@ defmodule AndyWorldWeb.Router do
     pipe_through :browser
 
     live "/", PlaygroundMonitor
+    get "/gmtree/:robot_name/:selected_gms", ImageController, :get_gms_png
   end
 
   # Other scopes may use custom stacks.
