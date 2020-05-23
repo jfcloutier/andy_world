@@ -29,7 +29,9 @@ defmodule AndyWorldWeb.PlaygroundLive do
     text_color =
       cond do
         tile.robot != nil ->
-          if tile.ambient_light <= 60, do: "has-text-weight-bold has-text-white", else: "has-text-weight-bold has-text-dark"
+          if tile.ambient_light <= 60,
+            do: "has-text-weight-bold has-text-white",
+            else: "has-text-weight-bold has-text-dark"
 
         true ->
           "has-text-#{color}"

@@ -1,0 +1,79 @@
+
+ <%= if @all_robot_names != [] do %>
+    <div class="tile is-parent is-vertical is-12 has-background-white-ter">
+        <div class="tile is-child is-12">
+            <div class="field is-grouped">
+                <div class="control"><label class="label"> Looking at generative model </label></div>
+                <div class="control">
+                    <div class="select is-small">
+                        <select name="generative_models" id="generative_models" phx-click="gm_selected">
+                            <%= for gm_name <- @all_gm_names do %>
+                                <option value="<%= gm_name %>" <%= option_selected(gm_name, @selected_gm_name) %>> <%= "#{gm_name}" %> </option>
+                            <% end %>
+                        </select>
+                    </div>
+                </div>
+                <div class="control"><label class="label"> of robot </label></div>
+                <div class="control">
+                    <div class="select is-small">
+                        <select name="robots" id="cars" phx-click="robot_selected">
+                            <%= for robot_name <- @all_robot_names do %>
+                                <option value="<%= robot_name %>" <%= option_selected(robot_name, @selected_robot_name) %> > <%= "#{robot_name}" %> </option>
+                            <% end %>
+                        </select>
+                    </div> 
+                </div>         
+            </div
+        </div>
+        <div class="tile is-child box">
+           <div class="field is-grouped is-grouped-multiline">
+            <%= for prediction_in <- @predictions_in do %>
+                <div class="control">
+                    <div class="tags has-addons">
+                        <span class="tag"><%= tag_label(:prediction, :in) %></span>
+                        <span class="tag <%= tag_color(:prediction, :in) %> is-light"><%= prediction_in.label %></span>
+                    </div>
+                </div>
+            <% end %>
+           </div>
+        </div>
+        <div class="tile is-child box">
+           <div class="field is-grouped is-grouped-multiline">
+            <%= for perception <- @perceptions do %>
+                <div class="control">
+                    <div class="tags has-addons">
+                        <span class="tag"><%= tag_label(perception.type, :perception) %></span>
+                        <span class="tag <%= tag_color(perception.type, :perception) %> is-light"><%= perception.label %></span>
+                    </div>
+                </div>
+            <% end %>
+           </div>
+        </div>
+        <div class="tile is-child box">
+           <div class="field is-grouped is-grouped-multiline">
+            <%= for belief <- @beliefs do %>
+                <div class="control">
+                    <div class="tags has-addons">
+                        <span class="tag">belief</span>
+                        <span class="tag is-success is-light"><%= belief.label %></span>
+                    </div>
+                </div>
+            <% end %>
+           </div>
+        </div>
+        <div class="tile is-child box">
+           <div class="field is-grouped is-grouped-multiline">
+            <%= for prediction_error_out <- @prediction_errors_out do %>
+                <div class="control">
+                    <div class="tags has-addons">
+                        <span class="tag"><%= tag_label(:prediction_error, :out) %></span>
+                        <span class="tag <%= tag_color(:prediction_error, :out) %> is-light"><%= prediction_error_out.label %></span>
+                    </div>
+                </div>
+            <% end %>
+           </div>
+        </div>
+
+    </div>
+<% end %>
+ 

@@ -19,12 +19,19 @@
             <%= live_render(@socket, AndyWorldWeb.PlaygroundLive, id: :playground) %>
         </div>
       </div>
-      <div class="tile is-parent is-8">
-        <%= for robot_name <- @robot_names do %>
-          <div class="tile is-child">
-              <%= live_render(@socket, AndyWorldWeb.RobotLive, id: robot_name) %>
+      <div class="tile is-parent is-vertical is-8">
+          <div class="tile is-child"> 
+              <div class="tile is_parent">
+                <%= for robot_name <- @robot_names do %>
+                    <div class="tile is_child is-6">
+                      <%= live_render(@socket, AndyWorldWeb.RobotLive, id: robot_name) %>
+                    </div>
+                <% end %>
+              </div>
           </div>
-         <% end %>
-      </div>
+          <div class="tile is-child">
+            <%= live_render(@socket, AndyWorldWeb.GMLive, id: :gm) %>
+          </div>
+       </div>
     </div>
 </div>

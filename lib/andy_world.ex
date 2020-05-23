@@ -49,6 +49,12 @@ defmodule AndyWorld do
     GenServer.cast({:clock, robot.node}, :resume)
   end
 
+  def gm_tree(robot_name) do
+    {:ok, robot} = GenServer.call(playground(), {:robot, robot_name})
+    {:ok, gm_tree} = GenServer.call({:andy_portal, robot.node}, :gm_tree)
+    gm_tree
+  end
+
   def broadcast(topic, payload) do
     PubSub.broadcast(AndyWorld.PubSub, topic, {String.to_atom(topic), payload})
   end
