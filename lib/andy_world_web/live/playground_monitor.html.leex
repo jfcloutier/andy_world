@@ -28,25 +28,21 @@
             <%= live_render(@socket, AndyWorldWeb.GMTreeLive, id: :gm_tree) %>
         </div>
       </div>
-      <div class="tile is-parent is-vertical is-8">
-          <div class="tile is-child"> 
-              <div class="tile is_parent">
-                <%= for robot_name <- @robot_names do %>
-                    <div class="tile is_child is-6">
-                      <%= live_render(@socket, AndyWorldWeb.RobotLive, id: robot_name) %>
-                    </div>
-                <% end %>
-              </div>
+      <div class="tile is-vertical is-8">
+          <div class="tile is-parent" style="flex-grow: 0">
+            <%= for robot_name <- @robot_names do %>
+                <div class="tile is_child is-6">
+                  <%= live_render(@socket, AndyWorldWeb.RobotLive, id: robot_name) %>
+                </div>
+            <% end %>
           </div>
           <% gm_width = if Enum.count(@gm_ids) == 1, do: "", else: "is-6" %>
-          <div class="tile is-child">
-            <div class="tile is-parent">
-              <%= for gm_id <- @gm_ids do %>
-                <div class="tile is_child <%= gm_width %>">
-                  <%= live_render(@socket, AndyWorldWeb.GMLive, id: gm_id) %>
-                </div>
-              <% end %>
-            </div>
+          <div class="tile is-parent" style="flex-grow: 0">
+            <%= for gm_id <- @gm_ids do %>
+              <div class="tile is_child <%= gm_width %>">
+                <%= live_render(@socket, AndyWorldWeb.GMLive, id: gm_id) %>
+              </div>
+            <% end %>
           </div>
        </div>
     </div>

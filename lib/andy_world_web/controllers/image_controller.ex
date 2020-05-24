@@ -22,9 +22,9 @@ defmodule AndyWorldWeb.ImageController do
     {graph, vertex_ids} =
       Enum.reduce(
         gm_names,
-        {Graph.new(), %{}},
+        {Graph.new(width: 6, height: 4), %{}},
         fn gm_name, {acc_graph, acc_ids} ->
-          color = if "#{gm_name}" in selected_gm_names, do: "goldenrod2", else: "steelblue"
+          color = if "#{gm_name}" in selected_gm_names, do: "goldenrod2", else: "cornflowerblue"
 
           {acc_graph1, vertex_id} =
             Graph.add_vertex(acc_graph, "#{gm_name}", fontname: "helvetica bold", style: "filled", fillcolor: color, color: color, fontcolor: "white", shape: "box")

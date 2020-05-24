@@ -66,7 +66,7 @@ defmodule AndyWorldWeb.PlaygroundMonitor do
       else
         gm_ids
       end
-
+    AndyWorld.broadcast("showing_gms", updated_gm_ids)
     {:noreply, assign(socket, gm_ids: updated_gm_ids)}
   end
 

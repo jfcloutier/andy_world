@@ -8,19 +8,22 @@ defmodule AndyWorldWeb.GMLive do
   alias Phoenix.PubSub
   require Logger
 
+  @max_label_size 110
+
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket), do: subscribe()
     all_robot_names = all_robot_names()
     selected_robot_name = default_selected_robot_name(all_robot_names)
     all_gm_names = all_gm_names(selected_robot_name)
-
+    gm_name = default_selected_gm_name(all_gm_names)
+    if gm_name != nil, do: AndyWorld.broadcast("gm_selected", %{id: socket.id, gm_name: gm_name})
     {:ok,
      assign(socket,
        all_robot_names: all_robot_names,
        selected_robot_name: selected_robot_name,
        all_gm_names: all_gm_names,
-       selected_gm_name: default_selected_gm_name(all_gm_names),
+       selected_gm_name: gm_name,
        round_status: :not_started,
        perceptions: [],
        predictions_in: [],
@@ -66,7 +69,7 @@ defmodule AndyWorldWeb.GMLive do
         round_status: :unknown
       )
 
-    AndyWorld.broadcast("gm_selected", gm_name)
+    AndyWorld.broadcast("gm_selected", %{id: socket.id, gm_name: gm_name})
     {:noreply, assign(socket, updated_assigns)}
   end
 
@@ -83,7 +86,7 @@ defmodule AndyWorldWeb.GMLive do
       if selected_gm_name == nil, do: all_gm_names(robot_name), else: socket.assigns.all_gm_names
 
     gm_name = if selected_gm_name == nil, do: List.first(gm_names), else: selected_gm_name
-    AndyWorld.broadcast("gm_selected", gm_name)
+    AndyWorld.broadcast("gm_selected", %{id: socket.id, gm_name: gm_name})
     AndyWorld.broadcast("robot_selected", robot_name)
 
     {:noreply,
@@ -252,6 +255,14 @@ defmodule AndyWorldWeb.GMLive do
 
   defp option_selected(name, name), do: "selected=selected"
   defp option_selected(_name, _other), do: ""
+
+  defp keep_short(label) do
+    if String.length(label) > @max_label_size do
+      String.slice(label, 0..@max_label_size) <> "..."
+    else
+      label
+    end
+  end
 
   defp subscribe() do
     ~w(robot_placed robot_event)

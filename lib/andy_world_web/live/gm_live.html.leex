@@ -34,7 +34,7 @@
                 <div class="control">
                     <div class="tags has-addons is-small">
                         <span class="tag"><%= tag_label(:prediction, :in) %></span>
-                        <span class="tag <%= tag_color(:prediction, :in, @round_status) %>"><%= prediction_in.label %></span>
+                        <span class="tag <%= tag_color(:prediction, :in, @round_status) %>"><%= keep_short(prediction_in.label) %></span>
                     </div>
                 </div>
             <% end %>
@@ -46,7 +46,7 @@
                 <div class="control">
                     <div class="tags has-addons is-small">
                         <span class="tag"><%= tag_label(perception.type, :perception) %></span>
-                        <span class="tag <%= tag_color(perception.type, :perception, @round_status) %>"><%= perception.label %></span>
+                        <span class="tag <%= tag_color(perception.type, :perception, @round_status) %>"><%= keep_short(perception.label) %></span>
                     </div>
                 </div>
             <% end %>
@@ -58,7 +58,7 @@
                 <div class="control">
                     <div class="tags has-addons is-small">
                         <span class="tag">belief</span>
-                        <span class="tag <%= tag_color(:belief, :out, @round_status) %>"><%= belief.label %></span>
+                        <span class="tag <%= tag_color(:belief, :out, @round_status) %>"><%= keep_short(belief.label) %></span>
                     </div>
                 </div>
             <% end %>
@@ -70,7 +70,7 @@
                 <div class="control">
                     <div class="tags has-addons is-small">
                         <span class="tag"><%= tag_label(:prediction_error, :out) %></span>
-                        <span class="tag <%= tag_color(:prediction_error, :out, @round_status) %>"><%= prediction_error_out.label %></span>
+                        <span class="tag <%= tag_color(:prediction_error, :out, @round_status) %>"><%= keep_short(prediction_error_out.label) %></span>
                     </div>
                 </div>
             <% end %>
@@ -82,7 +82,7 @@
                 <div class="control">
                     <div class="tags has-addons is-small">
                         <span class="tag"><%= tag_label(:course_of_action, :now) %></span>
-                        <span class="tag <%= tag_color(:course_of_action, :now, @round_status) %>"><%= course_of_action.label %></span>
+                        <span class="tag <%= tag_color(:course_of_action, :now, @round_status) %>"><%= keep_short(course_of_action.label) %></span>
                     </div>
                 </div>
             <% end %>
