@@ -24,10 +24,10 @@ defmodule AndyWorldWeb.ImageController do
         gm_names,
         {Graph.new(), %{}},
         fn gm_name, {acc_graph, acc_ids} ->
-          color = if "#{gm_name}" in selected_gm_names, do: "red", else: "blue"
+          color = if "#{gm_name}" in selected_gm_names, do: "goldenrod2", else: "steelblue"
 
           {acc_graph1, vertex_id} =
-            Graph.add_vertex(acc_graph, "#{gm_name}", color: color, shape: "box")
+            Graph.add_vertex(acc_graph, "#{gm_name}", fontname: "helvetica bold", style: "filled", fillcolor: color, color: color, fontcolor: "white", shape: "box")
 
           acc_ids1 = Map.put(acc_ids, gm_name, vertex_id)
           {acc_graph1, acc_ids1}
@@ -49,7 +49,8 @@ defmodule AndyWorldWeb.ImageController do
                 Graph.add_edge(
                   acc,
                   Map.fetch!(vertex_ids, gm_name),
-                  Map.fetch!(vertex_ids, child)
+                  Map.fetch!(vertex_ids, child),
+                  color: "gray12"
                 )
 
               acc1
