@@ -3,7 +3,7 @@
         <%= for row <- Enum.reverse(@tiles) do %>
             <tr>
                 <%= for tile <- row do %>
-                    <td class="<%=tile_class(tile) %>">
+                    <td class="<%=tile_class(tile) %>" style="text-align: center">
                       <%= raw tile_content(tile) %>
                     </td>
                 <% end %>

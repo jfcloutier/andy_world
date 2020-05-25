@@ -6,7 +6,7 @@ digraph G {
   v3 [label="collision_course_with_other",fontname="helvetica bold",style="filled",fillcolor="cornflowerblue",color="cornflowerblue",fontcolor="white",shape="box"]
   v4 [label="danger",fontname="helvetica bold",style="filled",fillcolor="cornflowerblue",color="cornflowerblue",fontcolor="white",shape="box"]
   v5 [label="eating",fontname="helvetica bold",style="filled",fillcolor="cornflowerblue",color="cornflowerblue",fontcolor="white",shape="box"]
-  v6 [label="food_approach",fontname="helvetica bold",style="filled",fillcolor="cornflowerblue",color="cornflowerblue",fontcolor="white",shape="box"]
+  v6 [label="food_approach",fontname="helvetica bold",style="filled",fillcolor="goldenrod2",color="goldenrod2",fontcolor="white",shape="box"]
   v7 [label="freedom",fontname="helvetica bold",style="filled",fillcolor="cornflowerblue",color="cornflowerblue",fontcolor="white",shape="box"]
   v8 [label="hunger",fontname="helvetica bold",style="filled",fillcolor="cornflowerblue",color="cornflowerblue",fontcolor="white",shape="box"]
   v9 [label="intentions_of_other",fontname="helvetica bold",style="filled",fillcolor="cornflowerblue",color="cornflowerblue",fontcolor="white",shape="box"]
