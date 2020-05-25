@@ -331,7 +331,7 @@ defmodule AndyWorldWeb.GMLive do
   defp round_index_selected(round_index, round_index), do: "selected=selected"
   defp round_index_selected(_, _), do: ""
 
-  defp round_name(0), do: "Current"
+  defp round_name(0), do: "Current round"
   defp round_name(1), do: "Previous round"
   defp round_name(n), do: "Round -#{n}"
 
