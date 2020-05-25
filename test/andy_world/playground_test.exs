@@ -27,7 +27,7 @@ defmodule AndyWorld.Playground.Test do
       assert tile.beacon_orientation == "S"
       assert tile.obstacle_height == 10
       assert tile.ground_color == tile_defaults.color
-      assert tile.ambient_light == tile_defaults.ambient
+      assert tile.ambient_light == tile_defaults.ambient * 10
     end
 
     test "Tile occupancy", %{tiles: tiles} do

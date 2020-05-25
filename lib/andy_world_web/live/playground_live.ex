@@ -23,12 +23,14 @@ defmodule AndyWorldWeb.PlaygroundLive do
     {:noreply, socket}
   end
 
-  def tile_class(tile) do
+  ## Private
+
+  defp tile_class(tile) do
     color = tile_color(tile)
 
     text_color =
       cond do
-        tile.robot != nil ->
+        tile.robot != nil or tile.beacon_orientation != nil ->
           if tile.ambient_light <= 60,
             do: "has-text-weight-bold has-text-white",
             else: "has-text-weight-bold has-text-dark"
@@ -41,14 +43,24 @@ defmodule AndyWorldWeb.PlaygroundLive do
     text_color <> " " <> bg_color
   end
 
-  def tile_content(tile) do
-    case tile.robot do
-      nil -> "Z"
-      %{name: name} -> String.at(name, 0) |> String.upcase()
+  defp tile_content(tile) do
+    cond do
+      tile.robot != nil ->
+        String.at(tile.robot.name, 0) |> String.upcase()
+
+      tile.beacon_orientation != nil ->
+        case tile.beacon_orientation do
+          "N" -> "&uarr;"
+          "E" -> "&rarr;"
+          "S" -> "&darr;"
+          "W" -> "&larr;"
+        end
+
+      true ->
+        "Z"
     end
   end
 
-  ## Private
   defp subscribe() do
     ~w(robot_placed robot_actuated)
     |> Enum.each(&PubSub.subscribe(AndyWorld.PubSub, &1))

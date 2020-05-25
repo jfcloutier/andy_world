@@ -4,7 +4,7 @@
             <tr>
                 <%= for tile <- row do %>
                     <td class="<%=tile_class(tile) %>">
-                      <%= tile_content(tile) %>
+                      <%= raw tile_content(tile) %>
                     </td>
                 <% end %>
             </tr>

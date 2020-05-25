@@ -13,7 +13,7 @@ defmodule AndyWorld.Tile do
             ambient_light: nil
 
   # "<obstacle height * 10><beacon orientation><color><ambient * 10>|...."
-  # _ = default, otherwise: obstacle in 0..9,  color in 0..7, ambient in 0..9, beacon in [N, S, E, W]
+  # _ = default, otherwise: obstacle in 0..9,  color in 0..7, ambient in 0..9, beacon_orientation in [N, S, E, W]
   def from_data(
         row,
         column,
