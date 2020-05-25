@@ -96,7 +96,19 @@
             <% end %>
            </div>
         </div>
-      <div class="tile is-child box">
+        <div class="tile is-child box">
+           <div class="field is-grouped is-grouped-multiline">
+            <%= for efficacy <- @efficacies do %>
+                <div class="control">
+                    <div class="tags has-addons is-small">
+                        <span class="tag"><%= tag_label(:efficacy, :now) %></span>
+                        <span class="tag <%= tag_color(:efficacy, :now, @round_status) %>"><%= keep_short(efficacy.label) %></span>
+                    </div>
+                </div>
+            <% end %>
+           </div>
+        </div>
+        <div class="tile is-child box">
            <div class="field is-grouped is-grouped-multiline">
             <%= for course_of_action <- @courses_of_action do %>
                 <div class="control">

@@ -10,6 +10,7 @@ defmodule AndyWorldWeb.GMLive do
 
   @max_label_size 110
   @max_past_rounds 5
+  @max_efficacies 3
 
   @impl true
   def mount(_params, _session, socket) do
@@ -33,6 +34,7 @@ defmodule AndyWorldWeb.GMLive do
        predictions_in: [],
        prediction_errors_out: [],
        beliefs: [],
+       efficacies: [],
        courses_of_action: []
      )}
   end
@@ -55,6 +57,7 @@ defmodule AndyWorldWeb.GMLive do
         selected_gm_name: gm_name,
         round_status: :unknown,
         conjecture_activations: [],
+        efficacies: [],
         courses_of_action: []
       )
 
@@ -70,6 +73,7 @@ defmodule AndyWorldWeb.GMLive do
       |> Keyword.merge(
         selected_gm_name: gm_name,
         round_status: :unknown,
+        efficacies: [],
         courses_of_action: []
       )
 
@@ -188,6 +192,25 @@ defmodule AndyWorldWeb.GMLive do
         {:robot_event,
          %{
            robot: robot,
+           event: {:efficacies, %{gm_name: gm_name, list: list}}
+         }},
+        socket
+      ) do
+    if current_round?(socket) and socket.assigns.selected_robot_name == robot.name and
+         gm_name == socket.assigns.selected_gm_name do
+          best_efficacies = list
+          |> Enum.sort(&(&1.value.degree > &2.value.degree))
+          |> Enum.take(@max_efficacies)
+      {:noreply, assign(socket, efficacies: best_efficacies)}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_info(
+        {:robot_event,
+         %{
+           robot: robot,
            event: {:courses_of_action, %{gm_name: gm_name, list: list}}
          }},
         socket
@@ -274,6 +297,7 @@ defmodule AndyWorldWeb.GMLive do
   defp tag_label(:prediction_error, :perception), do: "perception"
   defp tag_label(:prediction_error, :out), do: "prediction error out"
   defp tag_label(:course_of_action, _), do: "actions"
+  defp tag_label(:efficacy, _), do: "efficacy"
   defp tag_label(:conjecture_activation, _), do: "conjecture"
 
   defp tag_color(:prediction, :in, _), do: "is-info is-light"
@@ -282,6 +306,7 @@ defmodule AndyWorldWeb.GMLive do
   defp tag_color(:prediction_error, :perception, _), do: "is-danger is-light"
   defp tag_color(:prediction_error, :out, _), do: "is-danger is-light"
   defp tag_color(:belief, _, _), do: "is-success is-light"
+  defp tag_color(:efficacy, _, _), do: "is-link is-light"
   defp tag_color(:course_of_action, _, :round_completing), do: "is-success is-light"
   defp tag_color(:course_of_action, _, _), do: "is-light"
 
@@ -337,9 +362,7 @@ defmodule AndyWorldWeb.GMLive do
 
   defp assigns_for_round(0, _robot_name, _gm_name) do
     reset_gm()
-    |> Keyword.merge(
-      courses_of_action: []
-    )
+    |> Keyword.merge(courses_of_action: [], efficacies: [])
     |> Keyword.put(:selected_round_index, 0)
   end
 
