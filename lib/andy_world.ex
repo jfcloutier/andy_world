@@ -66,12 +66,18 @@ defmodule AndyWorld do
   # [predictions_in: [], perceptions: [], beliefs: [], prediction_errors_out: [], actions: []]
   def round_state(robot_name, gm_name, round_index) do
     {:ok, robot} = GenServer.call(playground(), {:robot, robot_name})
-    {:ok, round_state} = GenServer.call({:andy_portal, robot.node}, {:round_state, gm_name, round_index})
+
+    {:ok, round_state} =
+      GenServer.call({:andy_portal, robot.node}, {:round_state, gm_name, round_index})
+
     round_state
   end
 
-  def broadcast(topic, payload) do
-    PubSub.broadcast(AndyWorld.PubSub, topic, {String.to_atom(topic), payload})
+  def broadcast(topic, payload, delay \\ 0) do
+    spawn(fn ->
+      Process.sleep(delay)
+      PubSub.broadcast(AndyWorld.PubSub, topic, {String.to_atom(topic), payload})
+    end)
   end
 
   ### Test support

@@ -27,7 +27,7 @@ defmodule AndyWorldWeb.PlaygroundMonitor do
   @impl true
   def handle_info({:robot_placed, %{robot: robot}}, socket) do
     Logger.info("#{__MODULE__} robot placed #{inspect(robot.name)}")
-    robot_names = [robot.name | socket.assigns.robot_names] |> Enum.uniq()
+    robot_names = (socket.assigns.robot_names ++ [robot.name]) |> Enum.uniq()
     {:noreply, assign(socket, robot_names: robot_names)}
   end
 
@@ -66,6 +66,7 @@ defmodule AndyWorldWeb.PlaygroundMonitor do
       else
         gm_ids
       end
+
     AndyWorld.broadcast("showing_gms", updated_gm_ids)
     {:noreply, assign(socket, gm_ids: updated_gm_ids)}
   end

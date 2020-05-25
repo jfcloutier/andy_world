@@ -15,7 +15,6 @@ defmodule AndyWorldWeb.ImageController do
   end
 
   defp build_png(robot_name, selected_gm_names) do
-    Logger.warn("Building GM tree for robot #{inspect robot_name} with selected #{inspect selected_gm_names}")
     gm_tree = AndyWorld.gm_tree(String.to_existing_atom(robot_name))
     gm_names = List.flatten(Map.keys(gm_tree) ++ Map.values(gm_tree)) |> Enum.uniq()
 
@@ -27,7 +26,14 @@ defmodule AndyWorldWeb.ImageController do
           color = if "#{gm_name}" in selected_gm_names, do: "goldenrod2", else: "cornflowerblue"
 
           {acc_graph1, vertex_id} =
-            Graph.add_vertex(acc_graph, "#{gm_name}", fontname: "helvetica bold", style: "filled", fillcolor: color, color: color, fontcolor: "white", shape: "box")
+            Graph.add_vertex(acc_graph, "#{gm_name}",
+              fontname: "helvetica bold",
+              style: "filled",
+              fillcolor: color,
+              color: color,
+              fontcolor: "white",
+              shape: "box"
+            )
 
           acc_ids1 = Map.put(acc_ids, gm_name, vertex_id)
           {acc_graph1, acc_ids1}
@@ -58,8 +64,9 @@ defmodule AndyWorldWeb.ImageController do
           )
         end
       )
-      Graph.compile(final_graph, "gm_tree")
-      "gm_tree.png"
+
+    Graph.compile(final_graph, "gm_tree")
+    "gm_tree.png"
   end
 
   defp respond_with_png(file_path, conn) do

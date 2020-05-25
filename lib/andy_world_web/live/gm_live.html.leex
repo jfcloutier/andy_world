@@ -27,7 +27,7 @@
                 <div class="control">
                     <div class="select is-small">
                         <select name="rounds" phx-click="round_index_selected">
-                            <%= for round_index <- 0..round_indices(@selected_robot_name, @selected_gm_name) do %>
+                            <%= for round_index <- 0..round_indices(@selected_robot_name, @selected_gm_name, @round_status) do %>
                                 <option value="<%=round_index%>" <%= round_index_selected(round_index, @selected_round_index) %> > <%= round_name(round_index) %> </option>
                             <% end %>
                         </select>
@@ -43,6 +43,18 @@
                     <div class="tags has-addons is-small">
                         <span class="tag"><%= tag_label(:prediction, :in) %></span>
                         <span class="tag <%= tag_color(:prediction, :in, @round_status) %>"><%= keep_short(prediction_in.label) %></span>
+                    </div>
+                </div>
+            <% end %>
+           </div>
+        </div>
+        <div class="tile is-child box">
+           <div class="field is-grouped is-grouped-multiline">
+            <%= for conjecture_activation <- @conjecture_activations do %>
+                <div class="control">
+                    <div class="tags has-addons is-small">
+                        <span class="tag"><%= tag_label(:conjecture_activation, :now) %></span>
+                        <span class="tag <%= tag_color(:conjecture_activation, :now, @round_status) %>"><%= keep_short(conjecture_activation.label) %></span>
                     </div>
                 </div>
             <% end %>

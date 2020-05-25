@@ -28,6 +28,7 @@ defmodule AndyWorldWeb.GMLive do
        selected_gm_name: gm_name,
        selected_round_index: 0,
        round_status: :not_started,
+       conjecture_activations: [],
        perceptions: [],
        predictions_in: [],
        prediction_errors_out: [],
@@ -38,7 +39,6 @@ defmodule AndyWorldWeb.GMLive do
 
   @impl true
   def handle_event("robot_selected", %{"value" => robot_name_s}, socket) do
-    Logger.warn("ROBOT SELECTED #{robot_name_s}")
     robot_name = String.to_existing_atom(robot_name_s)
     all_gm_names = all_gm_names(robot_name)
 
@@ -48,12 +48,14 @@ defmodule AndyWorldWeb.GMLive do
         else: List.first(all_gm_names)
 
     updated_assigns =
-      reset_gm(robot_name, gm_name)
+      reset_gm()
       |> Keyword.merge(
         selected_robot_name: robot_name,
         all_gm_names: all_gm_names,
         selected_gm_name: gm_name,
-        round_status: :unknown
+        round_status: :unknown,
+        conjecture_activations: [],
+        courses_of_action: []
       )
 
     AndyWorld.broadcast("robot_selected", robot_name)
@@ -61,15 +63,14 @@ defmodule AndyWorldWeb.GMLive do
   end
 
   def handle_event("gm_selected", %{"value" => gm_name_s}, socket) do
-    Logger.warn("GM SELECTED #{gm_name_s}")
     gm_name = String.to_existing_atom(gm_name_s)
-    robot_name = socket.assigns.selected_robot_name
 
     updated_assigns =
-      reset_gm(robot_name, gm_name)
+      reset_gm()
       |> Keyword.merge(
         selected_gm_name: gm_name,
-        round_status: :unknown
+        round_status: :unknown,
+        courses_of_action: []
       )
 
     AndyWorld.broadcast("gm_selected", %{id: socket.id, gm_name: gm_name})
@@ -77,7 +78,6 @@ defmodule AndyWorldWeb.GMLive do
   end
 
   def handle_event("round_index_selected", %{"value" => round_index_s}, socket) do
-    Logger.warn("ROUND INDEX SELECTED #{round_index_s}")
     {round_index, _} = Integer.parse(round_index_s)
 
     if round_index != socket.assigns.selected_round_index do
@@ -131,6 +131,22 @@ defmodule AndyWorldWeb.GMLive do
     if current_round?(socket) and socket.assigns.selected_robot_name == robot.name and
          gm_name == socket.assigns.selected_gm_name do
       {:noreply, assign(socket, predictions_in: list)}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_info(
+        {:robot_event,
+         %{
+           robot: robot,
+           event: {:conjecture_activations, %{gm_name: gm_name, list: list}}
+         }},
+        socket
+      ) do
+    if current_round?(socket) and socket.assigns.selected_robot_name == robot.name and
+         gm_name == socket.assigns.selected_gm_name do
+      {:noreply, assign(socket, conjecture_activations: list)}
     else
       {:noreply, socket}
     end
@@ -216,7 +232,7 @@ defmodule AndyWorldWeb.GMLive do
       updated_assigns =
         case round_status do
           :round_initiating ->
-            reset_gm(robot.name, gm_name)
+            reset_gm()
 
           _other ->
             []
@@ -258,8 +274,10 @@ defmodule AndyWorldWeb.GMLive do
   defp tag_label(:prediction_error, :perception), do: "perception"
   defp tag_label(:prediction_error, :out), do: "prediction error out"
   defp tag_label(:course_of_action, _), do: "actions"
+  defp tag_label(:conjecture_activation, _), do: "conjecture"
 
-  defp tag_color(:prediction, :in, _), do: "is-primary is-light"
+  defp tag_color(:prediction, :in, _), do: "is-info is-light"
+  defp tag_color(:conjecture_activation, _, _), do: "is-primary is-light"
   defp tag_color(:prediction, :perception, _), do: "is-warning is-light"
   defp tag_color(:prediction_error, :perception, _), do: "is-danger is-light"
   defp tag_color(:prediction_error, :out, _), do: "is-danger is-light"
@@ -290,16 +308,24 @@ defmodule AndyWorldWeb.GMLive do
     |> Enum.each(&PubSub.subscribe(AndyWorld.PubSub, &1))
   end
 
-  defp reset_gm(_robot_name, _gm_name) do
-    # TODO - grab the current state of the gm's current round?
-    [round_status: :unknown, predictions_in: [], perceptions: [], beliefs: [], prediction_errors_out: []]
+  defp reset_gm() do
+    [
+      round_status: :unknown,
+      predictions_in: [],
+      perceptions: [],
+      beliefs: [],
+      prediction_errors_out: [],
+      conjecture_activations: []
+    ]
   end
 
-  defp round_indices(_robot_name, _gm_name) do
-    # TODO
-    # count = past_rounds_count(robot_name, gm_name)
-    # min(count, @max_past_rounds)
-    min(0, @max_past_rounds)
+  defp round_indices(robot_name, gm_name, round_status) do
+    if round_status == :not_started do
+      0
+    else
+      count = AndyWorld.past_rounds_count(robot_name, gm_name)
+      min(count, @max_past_rounds)
+    end
   end
 
   defp round_index_selected(round_index, round_index), do: "selected=selected"
@@ -309,13 +335,23 @@ defmodule AndyWorldWeb.GMLive do
   defp round_name(1), do: "Previous round"
   defp round_name(n), do: "Round -#{n}"
 
-  defp assigns_for_round(0, robot_name, gm_name) do
-    reset_gm(robot_name, gm_name) |> Keyword.put(:selected_round_index, 0)
+  defp assigns_for_round(0, _robot_name, _gm_name) do
+    reset_gm()
+    |> Keyword.merge(
+      courses_of_action: []
+    )
+    |> Keyword.put(:selected_round_index, 0)
   end
 
-  defp assigns_for_round(index, _robot_name, _gm_name) do
-    # TODO - retrieve past round state and set assigns accordingly
-    [selected_round_index: index, round_status: :completed]
+  defp assigns_for_round(round_index, robot_name, gm_name) do
+    round_state = AndyWorld.round_state(robot_name, gm_name, round_index)
+
+    reset_gm()
+    |> Keyword.merge(round_state)
+    |> Keyword.merge(
+      selected_round_index: round_index,
+      round_status: :round_completed
+    )
   end
 
   defp current_round?(socket), do: socket.assigns.selected_round_index == 0

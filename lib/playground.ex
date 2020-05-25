@@ -82,22 +82,11 @@ defmodule AndyWorld.Playground do
         )
 
         AndyWorld.broadcast("robot_placed", %{robot: robot, row: row, column: column})
-
-        {
-          :reply,
-          :ok,
-          %State{
-            state
-            | robots:
-                Map.put(
-                  robots,
-                  name,
-                  robot
-                )
-          }
-        }
+        updated_robots = Map.put(robots, name, robot)
+        {:reply, :ok, %State{state | robots: updated_robots}}
 
       {:error, reason} ->
+        Logger.warn("Failed to place #{name}: #{reason}")
         {:reply, {:error, reason}, state}
     end
   end
