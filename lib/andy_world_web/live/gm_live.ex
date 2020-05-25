@@ -9,6 +9,7 @@ defmodule AndyWorldWeb.GMLive do
   require Logger
 
   @max_label_size 110
+  @max_past_rounds 5
 
   @impl true
   def mount(_params, _session, socket) do
@@ -18,12 +19,14 @@ defmodule AndyWorldWeb.GMLive do
     all_gm_names = all_gm_names(selected_robot_name)
     gm_name = default_selected_gm_name(all_gm_names)
     if gm_name != nil, do: AndyWorld.broadcast("gm_selected", %{id: socket.id, gm_name: gm_name})
+
     {:ok,
      assign(socket,
        all_robot_names: all_robot_names,
        selected_robot_name: selected_robot_name,
        all_gm_names: all_gm_names,
        selected_gm_name: gm_name,
+       selected_round_index: 0,
        round_status: :not_started,
        perceptions: [],
        predictions_in: [],
@@ -73,6 +76,24 @@ defmodule AndyWorldWeb.GMLive do
     {:noreply, assign(socket, updated_assigns)}
   end
 
+  def handle_event("round_index_selected", %{"value" => round_index_s}, socket) do
+    Logger.warn("ROUND INDEX SELECTED #{round_index_s}")
+    {round_index, _} = Integer.parse(round_index_s)
+
+    if round_index != socket.assigns.selected_round_index do
+      updated_assigns =
+        assigns_for_round(
+          round_index,
+          socket.assigns.selected_robot_name,
+          socket.assigns.selected_gm_name
+        )
+
+      {:noreply, assign(socket, updated_assigns)}
+    else
+      {:noreply, socket}
+    end
+  end
+
   @impl true
   def handle_info({:robot_placed, %{robot: robot}}, socket) do
     all_robot_names = [robot.name | socket.assigns.all_robot_names]
@@ -107,7 +128,7 @@ defmodule AndyWorldWeb.GMLive do
          }},
         socket
       ) do
-    if socket.assigns.selected_robot_name == robot.name and
+    if current_round?(socket) and socket.assigns.selected_robot_name == robot.name and
          gm_name == socket.assigns.selected_gm_name do
       {:noreply, assign(socket, predictions_in: list)}
     else
@@ -123,7 +144,7 @@ defmodule AndyWorldWeb.GMLive do
          }},
         socket
       ) do
-    if socket.assigns.selected_robot_name == robot.name and
+    if current_round?(socket) and socket.assigns.selected_robot_name == robot.name and
          gm_name == socket.assigns.selected_gm_name do
       {:noreply, assign(socket, perceptions: list)}
     else
@@ -139,7 +160,7 @@ defmodule AndyWorldWeb.GMLive do
          }},
         socket
       ) do
-    if socket.assigns.selected_robot_name == robot.name and
+    if current_round?(socket) and socket.assigns.selected_robot_name == robot.name and
          gm_name == socket.assigns.selected_gm_name do
       {:noreply, assign(socket, beliefs: list)}
     else
@@ -155,7 +176,7 @@ defmodule AndyWorldWeb.GMLive do
          }},
         socket
       ) do
-    if socket.assigns.selected_robot_name == robot.name and
+    if current_round?(socket) and socket.assigns.selected_robot_name == robot.name and
          gm_name == socket.assigns.selected_gm_name do
       {:noreply, assign(socket, courses_of_action: list)}
     else
@@ -171,7 +192,7 @@ defmodule AndyWorldWeb.GMLive do
          }},
         socket
       ) do
-    if socket.assigns.selected_robot_name == robot.name and
+    if current_round?(socket) and socket.assigns.selected_robot_name == robot.name and
          gm_name == socket.assigns.selected_gm_name do
       prediction_errors = socket.assigns.prediction_errors_out
       {:noreply, assign(socket, prediction_errors_out: [prediction_error | prediction_errors])}
@@ -190,7 +211,7 @@ defmodule AndyWorldWeb.GMLive do
              :round_completing,
              :round_completed
            ] do
-    if socket.assigns.selected_robot_name == robot.name and
+    if current_round?(socket) and socket.assigns.selected_robot_name == robot.name and
          gm_name == socket.assigns.selected_gm_name do
       updated_assigns =
         case round_status do
@@ -270,7 +291,32 @@ defmodule AndyWorldWeb.GMLive do
   end
 
   defp reset_gm(_robot_name, _gm_name) do
-    # TODO - grab the current state of the gm's current round
-    [predictions_in: [], perceptions: [], beliefs: [], prediction_errors_out: []]
+    # TODO - grab the current state of the gm's current round?
+    [round_status: :unknown, predictions_in: [], perceptions: [], beliefs: [], prediction_errors_out: []]
   end
+
+  defp round_indices(_robot_name, _gm_name) do
+    # TODO
+    # count = past_rounds_count(robot_name, gm_name)
+    # min(count, @max_past_rounds)
+    min(0, @max_past_rounds)
+  end
+
+  defp round_index_selected(round_index, round_index), do: "selected=selected"
+  defp round_index_selected(_, _), do: ""
+
+  defp round_name(0), do: "Current"
+  defp round_name(1), do: "Previous round"
+  defp round_name(n), do: "Round -#{n}"
+
+  defp assigns_for_round(0, robot_name, gm_name) do
+    reset_gm(robot_name, gm_name) |> Keyword.put(:selected_round_index, 0)
+  end
+
+  defp assigns_for_round(index, _robot_name, _gm_name) do
+    # TODO - retrieve past round state and set assigns accordingly
+    [selected_round_index: index, round_status: :completed]
+  end
+
+  defp current_round?(socket), do: socket.assigns.selected_round_index == 0
 end

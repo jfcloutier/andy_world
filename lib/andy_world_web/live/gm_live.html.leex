@@ -16,16 +16,24 @@
                 <div class="control"><label class="label"> of </label></div>
                 <div class="control">
                     <div class="select is-small">
-                        <select name="robots" id="cars" phx-click="robot_selected">
+                        <select name="robots" phx-click="robot_selected">
                             <%= for robot_name <- @all_robot_names do %>
                                 <option value="<%= robot_name %>" <%= option_selected(robot_name, @selected_robot_name) %> > <%= "#{robot_name}" %> </option>
                             <% end %>
                         </select>
                     </div> 
-                </div>    
+                </div> 
+                <div class="control"><label class="label"> &mdash; </label></div>   
                 <div class="control">
-                    <span> Current round is <%= round_status_label(@round_status) %> </span>
+                    <div class="select is-small">
+                        <select name="rounds" phx-click="round_index_selected">
+                            <%= for round_index <- 0..round_indices(@selected_robot_name, @selected_gm_name) do %>
+                                <option value="<%=round_index%>" <%= round_index_selected(round_index, @selected_round_index) %> > <%= round_name(round_index) %> </option>
+                            <% end %>
+                        </select>
+                    </div>
                 </div>     
+                <div class="control"><label class="label">round is <%= round_status_label(@round_status) %> </label></div> 
             </div>
         </div>
         <div class="tile is-child box">

@@ -55,6 +55,21 @@ defmodule AndyWorld do
     gm_tree
   end
 
+  # Return distance from current of earliest remembered past round
+  def past_rounds_count(robot_name, gm_name) do
+    {:ok, robot} = GenServer.call(playground(), {:robot, robot_name})
+    {:ok, count} = GenServer.call({:andy_portal, robot.node}, {:past_rounds_count, gm_name})
+    count
+  end
+
+  # Return round state as a map from which to extract:
+  # [predictions_in: [], perceptions: [], beliefs: [], prediction_errors_out: [], actions: []]
+  def round_state(robot_name, gm_name, round_index) do
+    {:ok, robot} = GenServer.call(playground(), {:robot, robot_name})
+    {:ok, round_state} = GenServer.call({:andy_portal, robot.node}, {:round_state, gm_name, round_index})
+    round_state
+  end
+
   def broadcast(topic, payload) do
     PubSub.broadcast(AndyWorld.PubSub, topic, {String.to_atom(topic), payload})
   end
