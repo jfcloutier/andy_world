@@ -9,7 +9,7 @@ defmodule AndyWorldWeb.GMLive do
   require Logger
 
   @max_label_size 110
-  @max_past_rounds 5
+  @max_past_rounds 19
   @max_efficacies 3
 
   @impl true
@@ -358,7 +358,7 @@ defmodule AndyWorldWeb.GMLive do
 
   defp round_name(0), do: "Current round"
   defp round_name(1), do: "Previous round"
-  defp round_name(n), do: "Round -#{n}"
+  defp round_name(n), do: "Round - #{n}"
 
   defp assigns_for_round(0, _robot_name, _gm_name) do
     reset_gm()
