@@ -1,4 +1,4 @@
-defmodule AndyWorldWeb.GMTreeLive do
+defmodule AndyWorldWeb.GMGraphLive do
   @moduledoc """
     The dynamic visualization of GM tree.
   """
