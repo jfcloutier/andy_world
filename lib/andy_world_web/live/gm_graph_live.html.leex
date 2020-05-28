@@ -1,3 +1,3 @@
-<%= if @robot_name != nil and Enum.count(@selected_gm_names) != 0 do %>
-    <img src="/gmtree/<%=@robot_name%>/<%=Enum.join(Map.values(@selected_gm_names), ":")%>" alt="GM tree">
+<%= if @graph_png_file != nil do %>
+    <img src="/gm_graph/<%= @graph_png_file %>" alt="GM graph">
 <% end %>

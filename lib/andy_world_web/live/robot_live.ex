@@ -11,6 +11,7 @@ defmodule AndyWorldWeb.RobotLive do
   def mount(_params, _session, socket) do
     if connected?(socket), do: subscribe()
     robot_name = String.to_atom(socket.id)
+
     {:ok,
      assign(socket,
        robot_name: robot_name,

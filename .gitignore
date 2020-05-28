@@ -39,5 +39,5 @@ npm-debug.log
 .elixir_ls/
 .gitignore
 launch.json
-gm_tree.dot
-gm_tree.png
+gm_graph_*.dot
+gm_graph_*.png

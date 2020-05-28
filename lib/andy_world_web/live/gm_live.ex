@@ -19,7 +19,14 @@ defmodule AndyWorldWeb.GMLive do
     selected_robot_name = default_selected_robot_name(all_robot_names)
     all_gm_names = all_gm_names(selected_robot_name)
     gm_name = default_selected_gm_name(all_gm_names)
-    if gm_name != nil, do: AndyWorld.broadcast("gm_selected", %{id: socket.id, gm_name: gm_name})
+
+    if selected_robot_name != nil and gm_name != nil,
+      do:
+        AndyWorld.broadcast("gm_selected", %{
+          id: socket.id,
+          robot_name: selected_robot_name,
+          gm_name: gm_name
+        })
 
     {:ok,
      assign(socket,
@@ -61,12 +68,18 @@ defmodule AndyWorldWeb.GMLive do
         courses_of_action: []
       )
 
-    AndyWorld.broadcast("robot_selected", robot_name)
+    AndyWorld.broadcast("gm_selected", %{
+      id: socket.id,
+      robot_name: robot_name,
+      gm_name: gm_name
+    })
+
     {:noreply, assign(socket, updated_assigns)}
   end
 
   def handle_event("gm_selected", %{"value" => gm_name_s}, socket) do
     gm_name = String.to_existing_atom(gm_name_s)
+    robot_name = socket.assigns.selected_robot_name
 
     updated_assigns =
       reset_gm()
@@ -77,7 +90,7 @@ defmodule AndyWorldWeb.GMLive do
         courses_of_action: []
       )
 
-    AndyWorld.broadcast("gm_selected", %{id: socket.id, gm_name: gm_name})
+    AndyWorld.broadcast("gm_selected", %{id: socket.id, robot_name: robot_name, gm_name: gm_name})
     {:noreply, assign(socket, updated_assigns)}
   end
 
@@ -111,8 +124,7 @@ defmodule AndyWorldWeb.GMLive do
       if selected_gm_name == nil, do: all_gm_names(robot_name), else: socket.assigns.all_gm_names
 
     gm_name = if selected_gm_name == nil, do: List.first(gm_names), else: selected_gm_name
-    AndyWorld.broadcast("gm_selected", %{id: socket.id, gm_name: gm_name})
-    AndyWorld.broadcast("robot_selected", robot_name)
+    AndyWorld.broadcast("gm_selected", %{id: socket.id, robot_name: robot_name, gm_name: gm_name})
 
     {:noreply,
      assign(socket,
@@ -198,9 +210,11 @@ defmodule AndyWorldWeb.GMLive do
       ) do
     if current_round?(socket) and socket.assigns.selected_robot_name == robot.name and
          gm_name == socket.assigns.selected_gm_name do
-          best_efficacies = list
-          |> Enum.sort(&(&1.value.degree > &2.value.degree))
-          |> Enum.take(@max_efficacies)
+      best_efficacies =
+        list
+        |> Enum.sort(&(&1.value.degree > &2.value.degree))
+        |> Enum.take(@max_efficacies)
+
       {:noreply, assign(socket, efficacies: best_efficacies)}
     else
       {:noreply, socket}
