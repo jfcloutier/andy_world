@@ -326,6 +326,8 @@ defmodule AndyWorldWeb.GMLive do
     else
       label
     end
+    |> String.replace("%{", "{")
+    |> String.replace(":", "")
   end
 
   defp subscribe() do
