@@ -36,12 +36,11 @@ defmodule AndyWorld.Playground do
     {:ok, %State{tiles: init_tiles()}}
   end
 
-  # An event was broadcasted by a robot
+  # An event was broadcasted by an Andy robot
   def handle_cast({:event, robot_name, event}, %State{robots: robots} = state) do
     robot = Map.fetch!(robots, robot_name)
-    updated_robot = Robot.record_event(robot, event)
-    AndyWorld.broadcast("robot_event", %{robot: updated_robot, event: event})
-    {:noreply, %State{state | robots: Map.put(robots, robot_name, updated_robot)}}
+    AndyWorld.broadcast("robot_event", %{robot: robot, event: event})
+    {:noreply, %State{state | robots: Map.put(robots, robot_name, robot)}}
   end
 
   # A robot is placed on the playground

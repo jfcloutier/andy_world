@@ -36,6 +36,7 @@ defmodule AndyWorldWeb.GMLive do
        selected_gm_name: gm_name,
        selected_round_index: 0,
        round_status: :not_started,
+       round_number: 0,
        conjecture_activations: [],
        perceptions: [],
        predictions_in: [],
@@ -255,7 +256,8 @@ defmodule AndyWorldWeb.GMLive do
   end
 
   def handle_info(
-        {:robot_event, %{robot: robot, event: {round_status, gm_name}}},
+        {:robot_event,
+         %{robot: robot, event: {round_status, %{gm_name: gm_name, round_number: round_number}}}},
         socket
       )
       when round_status in [
@@ -274,7 +276,7 @@ defmodule AndyWorldWeb.GMLive do
           _other ->
             []
         end
-        |> Keyword.merge(round_status: round_status)
+        |> Keyword.merge(round_status: round_status, round_number: round_number)
 
       {:noreply, assign(socket, updated_assigns)}
     else

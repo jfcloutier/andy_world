@@ -18,8 +18,7 @@ defmodule AndyWorld.Robot do
             x: 0.0,
             y: 0.0,
             sensors: %{},
-            motors: %{},
-            events: []
+            motors: %{}
 
   def new(
         name: name,
@@ -111,12 +110,6 @@ defmodule AndyWorld.Robot do
           robots
         ])
     end
-  end
-
-  def record_event(%Robot{events: events} = robot, event) do
-    max_events_remembered = Application.get_env(:andy_world, :max_events_remembered, 100)
-    updated_events = [event | events] |> Enum.take(max_events_remembered)
-    %Robot{robot | events: updated_events}
   end
 
   # Private
