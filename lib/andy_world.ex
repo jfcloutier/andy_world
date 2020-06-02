@@ -55,11 +55,11 @@ defmodule AndyWorld do
     gm_tree
   end
 
-  # Return distance from current of earliest remembered past round
-  def past_rounds_count(robot_name, gm_name) do
+  # Return current and past round indices
+  def round_indices(robot_name, gm_name, max_rounds) do
     {:ok, robot} = GenServer.call(playground(), {:robot, robot_name})
-    {:ok, count} = GenServer.call({:andy_portal, robot.node}, {:past_rounds_count, gm_name})
-    count
+    {:ok, indices} = GenServer.call({:andy_portal, robot.node}, {:round_indices, gm_name, max_rounds})
+    indices
   end
 
   # Return round state as a map from which to extract:

@@ -364,10 +364,9 @@ defmodule AndyWorldWeb.GMLive do
 
   defp round_indices(robot_name, gm_name, round_status) do
     if round_status == :not_started do
-      0
+      [%{number: 0, seconds: 0}]
     else
-      count = AndyWorld.past_rounds_count(robot_name, gm_name)
-      min(count, @max_past_rounds)
+      AndyWorld.round_indices(robot_name, gm_name, @max_past_rounds)
     end
   end
 
@@ -376,7 +375,7 @@ defmodule AndyWorldWeb.GMLive do
 
   defp round_name(0), do: "Current round"
   defp round_name(1), do: "Previous round"
-  defp round_name(n), do: "Round - #{n}"
+  defp round_name(n), do: "#{n} secs ago"
 
   defp assigns_for_round(0, _robot_name, _gm_name) do
     reset_gm()

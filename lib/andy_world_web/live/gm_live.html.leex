@@ -27,8 +27,8 @@
                 <div class="control">
                     <div class="select is-small">
                         <select name="rounds" phx-click="round_index_selected">
-                            <%= for round_index <- 0..round_indices(@selected_robot_name, @selected_gm_name, @round_status) do %>
-                                <option value="<%=round_index%>" <%= round_index_selected(round_index, @selected_round_index) %> > <%= round_name(round_index) %> </option>
+                            <%= for round_index <- round_indices(@selected_robot_name, @selected_gm_name, @round_status) do %>
+                                <option value="<%=round_index.number%>" <%= round_index_selected(round_index.number, @selected_round_index) %> > <%= round_name(round_index.seconds) %> </option>
                             <% end %>
                         </select>
                     </div>
