@@ -19,7 +19,10 @@ defmodule AndyWorldWeb.PlaygroundLive do
   end
 
   def handle_info({topic, payload}, socket) do
-    Logger.info("#{__MODULE__} HANDLING #{inspect(topic)} about #{inspect(payload.robot.name)}")
+    Logger.info(
+      "#{__MODULE__} NOT HANDLING #{inspect(topic)} about #{inspect(payload.robot.name)}"
+    )
+
     {:noreply, socket}
   end
 
@@ -57,6 +60,7 @@ defmodule AndyWorldWeb.PlaygroundLive do
         end
 
       true ->
+        # Will be white on white. Gives the tile width even if "empty".
         "Z"
     end
   end

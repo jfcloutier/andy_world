@@ -377,18 +377,13 @@ defmodule AndyWorldWeb.GMLive do
   defp round_name(1), do: "Previous round"
   defp round_name(n), do: "#{n} secs ago"
 
-  # defp assigns_for_round(0, _robot_name, _gm_name) do
-  #   reset_gm()
-  #   |> Keyword.merge(courses_of_action: [], efficacies: [])
-  #   |> Keyword.put(:selected_round_index, 0)
-  # end
-
   defp assigns_for_round(round_index, robot_name, gm_name) do
     round_state = AndyWorld.round_state(robot_name, gm_name, round_index)
     round_status_assign = if round_index == 0, do: [], else: [round_status: :round_completed]
+
     reset_gm()
     |> Keyword.merge(round_state)
-    |> Keyword.merge( selected_round_index: round_index)
+    |> Keyword.merge(selected_round_index: round_index)
     |> Keyword.merge(round_status_assign)
   end
 

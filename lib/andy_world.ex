@@ -58,7 +58,10 @@ defmodule AndyWorld do
   # Return current and past round indices
   def round_indices(robot_name, gm_name, max_rounds) do
     {:ok, robot} = GenServer.call(playground(), {:robot, robot_name})
-    {:ok, indices} = GenServer.call({:andy_portal, robot.node}, {:round_indices, gm_name, max_rounds})
+
+    {:ok, indices} =
+      GenServer.call({:andy_portal, robot.node}, {:round_indices, gm_name, max_rounds})
+
     indices
   end
 
