@@ -1,8 +1,8 @@
 <div class="section container is-fluid">
     <div class="level">
-      <div class="level-left">
+      <%# <div class="level-left">
         <span class="is-size-3">Andy World</span>
-      </div>
+      </div> %>
       <div class = "level-right">
         <p class="control">
           <%= if Enum.count(@gm_ids) == 1 and Enum.count(@robot_names) > 0 do %>
@@ -13,7 +13,7 @@
           <% end %>
           <button class="button" phx-click="slow_down"> <%= slow_down_label(@time_dilatation) %> </button>
           <%= if @time_dilatation != 0 do %>
-            <button class="button" phx-click="normal_speed"> Normal speed </button> 
+            <button class="button" phx-click="normal_speed"> Normal speed </button>
           <% end %>
           <button class="button" phx-click="pause_or_resume_robots"> <%= pause_or_resume_label(@robots_paused) %> </button>
         </p>
